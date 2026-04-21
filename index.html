@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backlog de Sellers — Sporting Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --g: #5ea832;
+      --g2: #4a8a26;
+      --g-dim: rgba(94,168,50,.1);
+      --g-brd: rgba(94,168,50,.22);
+      --k: #0d0f0d;
+      --k2: #131713;
+      --k3: #181d17;
+      --k4: #1e2520;
+      --w: #ffffff;
+      --bdr: rgba(255,255,255,.07);
+      --bdr-l: rgba(255,255,255,.04);
+      --t1: #e8ede4;
+      --t2: #a1b199;
+      --t3: #6b7b65;
+      --danger: #d94040;
+      --danger-dim: rgba(217,64,64,.10);
+      --info: #64b5f6;
+      --info-dim: rgba(33,150,243,.12);
+      --teal: #4db6ac;
+      --teal-dim: rgba(0,150,136,.12);
+      --warn: #ffb74d;
+      --warn-dim: rgba(255,152,0,.12);
+      --violet: #ce93d8;
+      --violet-dim: rgba(156,39,176,.14);
+      --shadow: 0 8px 24px rgba(0,0,0,.24);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 15px; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: linear-gradient(180deg, #0b0d0b 0%, #101410 100%);
+      color: var(--t1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 10px 24px;
+      background: rgba(13,15,13,.96);
+      border-bottom: 1px solid var(--g-brd);
+      backdrop-filter: blur(16px);
+    }
+    .tb-brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .tb-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: var(--w);
+      white-space: nowrap;
+    }
+    .tb-logo span { color: var(--g); }
+    .tb-module {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--t3);
+      border-left: 1px solid var(--bdr);
+      padding-left: 14px;
+      white-space: nowrap;
+    }
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .status-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t2); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--t3); flex-shrink: 0; }
+    .dot.live { background: var(--g); box-shadow: 0 0 0 3px rgba(94,168,50,.18); animation: pulse 2s infinite; }
+    .dot.err { background: var(--danger); }
+    .dot.load { background: var(--warn); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    .tb-date { font-size: 10px; color: var(--t3); letter-spacing: .06em; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .topbar-check {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--t3); letter-spacing: .08em; text-transform: uppercase;
+    }
+    .topbar-check input { accent-color: var(--g); }
+
+    .btn-refresh, .btn-clear, .btn-chip {
+      background: transparent;
+      border: 1px solid var(--bdr);
+      border-radius: 6px;
+      color: var(--t2);
+      font-family: 'Barlow', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .btn-refresh:hover, .btn-clear:hover, .btn-chip:hover { border-color: var(--g); color: var(--g); }
+    .btn-refresh[disabled] { opacity: .55; cursor: progress; }
+
+    .layout { display: grid; grid-template-columns: 250px 1fr; min-height: calc(100vh - 58px); }
+    .sidebar {
+      background: linear-gradient(180deg, rgba(19,23,19,.98), rgba(16,20,16,.98));
+      border-right: 1px solid var(--bdr);
+      padding: 20px 0;
+      position: sticky;
+      top: 58px;
+      height: calc(100vh - 58px);
+      overflow-y: auto;
+    }
+    .sb-section { padding: 0 16px; margin-bottom: 24px; }
+    .sb-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+    .filter-input, .select {
+      width: 100%;
+      padding: 9px 11px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 7px;
+      color: var(--t1);
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+    }
+    .filter-input:focus, .select:focus { outline: none; border-color: var(--g); background: rgba(255,255,255,.07); }
+    .filter-input::placeholder { color: var(--t3); }
+    .select option { background: var(--k2); color: var(--t1); }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: var(--t2);
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .12s ease, border-color .12s ease, color .12s ease;
+      text-align: left;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,.05); color: var(--t1); }
+    .filter-btn.active { background: var(--g-dim); color: var(--g); border-color: var(--g-brd); }
+    .filter-count {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(255,255,255,.08);
+      min-width: 20px;
+      text-align: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: var(--t3);
+    }
+    .filter-btn.active .filter-count { background: rgba(94,168,50,.20); color: var(--g); }
+    .sidebar-divider { height: 1px; background: var(--bdr); margin: 0 16px 20px; }
+    .camino-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .c1-dot { background: var(--info); }
+    .c2-dot { background: var(--teal); }
+    .c3-dot { background: var(--warn); }
+    .all-dot { background: var(--t3); }
+
+    .sidebar-note {
+      margin: 0 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--bdr);
+      font-size: 11px;
+      color: var(--t3);
+      line-height: 1.55;
+    }
+
+    .main { background: radial-gradient(circle at top left, rgba(94,168,50,.05), transparent 28%), var(--k3); overflow-y: auto; }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    .kpi {
+      background: linear-gradient(180deg, rgba(19,23,19,.95), rgba(16,20,16,.95));
+      border: 1px solid var(--bdr);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-height: 98px;
+      box-shadow: var(--shadow);
+    }
+    .kpi-n {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--w);
+      line-height: 1;
+    }
+    .kpi-l {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 6px;
+    }
+    .kpi-s { font-size: 11px; color: var(--t3); margin-top: 5px; }
+    .kpi.c1 { border-color: rgba(33,150,243,.35); background: linear-gradient(180deg, rgba(33,150,243,.11), rgba(19,23,19,.95)); }
+    .kpi.c2 { border-color: rgba(0,150,136,.35); background: linear-gradient(180deg, rgba(0,150,136,.11), rgba(19,23,19,.95)); }
+    .kpi.c3 { border-color: rgba(255,152,0,.35); background: linear-gradient(180deg, rgba(255,152,0,.11), rgba(19,23,19,.95)); }
+    .kpi.alt { border-color: rgba(217,64,64,.30); background: linear-gradient(180deg, rgba(217,64,64,.08), rgba(19,23,19,.95)); }
+    .kpi.c1 .kpi-n { color: var(--info); }
+    .kpi.c2 .kpi-n { color: var(--teal); }
+    .kpi.c3 .kpi-n { color: var(--warn); }
+    .kpi.alt .kpi-n { color: #f29a9a; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    .toolbar-left { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .view-toggle { display: flex; gap: 2px; background: rgba(255,255,255,.04); border-radius: 7px; padding: 3px; }
+    .view-btn {
+      padding: 7px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: none;
+      background: transparent;
+      color: var(--t3);
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      transition: all .15s ease;
+    }
+    .view-btn.active { background: var(--g); color: var(--w); }
+    .toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .results-info { font-size: 11px; color: var(--t3); }
+    .inline-field { display: flex; align-items: center; gap: 8px; }
+    .inline-label {
+      font-size: 10px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .inline-select {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--t1);
+      border-radius: 7px;
+      padding: 8px 10px;
+      font-size: 12px;
+      min-width: 170px;
+    }
+
+    .active-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0 24px 14px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size: 11px;
+      color: var(--t2);
+      line-height: 1;
+    }
+    .filter-chip strong { color: var(--t1); }
+    .active-filters.hidden { display: none; }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 16px;
+      padding: 20px 24px;
+    }
+    .kanban-col {
+      background: linear-gradient(180deg, rgba(19,23,19,.96), rgba(16,20,16,.96));
+      border: 1px solid var(--bdr);
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 240px;
+      box-shadow: var(--shadow);
+    }
+    .kanban-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--bdr);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .kanban-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .kanban-sub { font-size: 10px; color: var(--t3); margin-top: 3px; text-transform: uppercase; letter-spacing: .08em; }
+    .kanban-count { font-size: 11px; color: var(--t3); background: rgba(255,255,255,.06); padding: 3px 9px; border-radius: 999px; }
+    .kanban-col.c1 .kanban-head { border-bottom-color: rgba(33,150,243,.30); }
+    .kanban-col.c2 .kanban-head { border-bottom-color: rgba(0,150,136,.30); }
+    .kanban-col.c3 .kanban-head { border-bottom-color: rgba(255,152,0,.30); }
+    .kanban-col.c1 .kanban-title { color: var(--info); }
+    .kanban-col.c2 .kanban-title { color: var(--teal); }
+    .kanban-col.c3 .kanban-title { color: var(--warn); }
+    .kanban-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    .seller-card {
+      background: linear-gradient(180deg, rgba(24,29,23,.96), rgba(17,20,17,.96));
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 9px;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .seller-card:hover {
+      border-color: var(--g-brd);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+    }
+    .sc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .sc-id { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--t3); }
+    .sc-pri {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .pri-alta { background: rgba(244,67,54,.15); color: #ef9a9a; }
+    .pri-media { background: rgba(255,152,0,.12); color: #ffcc80; }
+    .pri-baja { background: rgba(158,158,158,.12); color: #d0d8cb; }
+    .sc-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--w);
+      margin-bottom: 3px;
+      line-height: 1.1;
+    }
+    .sc-cat { font-size: 12px; color: var(--t3); margin-bottom: 10px; }
+    .sc-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
+    .tag.integ-sa { background: var(--info-dim); color: var(--info); }
+    .tag.integ-vv { background: var(--teal-dim); color: var(--teal); }
+    .tag.integ-sc { background: var(--warn-dim); color: var(--warn); }
+    .tag.e-contactado { background: var(--g-dim); color: #a5d6a7; }
+    .tag.e-relevamiento { background: var(--info-dim); color: #90caf9; }
+    .tag.e-propuesta { background: var(--violet-dim); color: var(--violet); }
+    .tag.e-acuerdo { background: var(--warn-dim); color: #ffcc80; }
+    .tag.e-onboarding { background: rgba(0,188,212,.15); color: #80deea; }
+    .tag.e-golive { background: rgba(76,175,80,.25); color: #a5d6a7; }
+    .tag.e-pausado { background: rgba(158,158,158,.15); color: #d0d8cb; }
+    .tag.e-default { background: rgba(255,255,255,.06); color: #d0d8cb; }
+
+    .sc-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      border-top: 1px solid var(--bdr-l);
+      padding-top: 10px;
+    }
+    .mini-field { display: grid; gap: 2px; }
+    .mini-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--t3);
+    }
+    .mini-value {
+      font-size: 12px;
+      color: var(--t2);
+      line-height: 1.45;
+    }
+
+    .table-wrap { padding: 20px 24px; }
+    .table-shell {
+      background: linear-gradient(180deg, rgba(19,23,19,.96), rgba(16,20,16,.96));
+      border: 1px solid var(--bdr);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .tbl th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--t3);
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--bdr);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+    .tbl td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--bdr-l);
+      color: var(--t2);
+      vertical-align: middle;
+    }
+    .tbl tr:hover td { background: rgba(255,255,255,.02); color: var(--t1); }
+    .td-id { font-size: 10px; font-weight: 700; color: var(--t3); white-space: nowrap; }
+    .td-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; text-transform: uppercase; color: var(--w); }
+    .td-camino, .td-estado {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .td-next { max-width: 240px; line-height: 1.45; }
+
+    .empty, .loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      gap: 14px;
+      color: var(--t3);
+      text-align: center;
+      padding: 30px 24px;
+    }
+    .empty-icon { font-size: 32px; opacity: .45; }
+    .spinner {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.10); border-top-color: var(--g);
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      margin: 20px 24px 24px;
+      background: var(--danger-dim);
+      border: 1px solid rgba(217,64,64,.25);
+      border-radius: 10px;
+      padding: 20px 22px;
+    }
+    .error-title { font-weight: 800; color: #f0a0a0; margin-bottom: 8px; }
+    .error-body { font-size: 13px; color: var(--t2); line-height: 1.7; }
+    .error-url {
+      font-size: 10px;
+      color: var(--t3);
+      background: rgba(255,255,255,.05);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: linear-gradient(180deg, rgba(19,23,19,.98), rgba(16,20,16,.98));
+      border: 1px solid var(--bdr);
+      border-radius: 14px;
+      width: min(760px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,.45);
+    }
+    .modal-header {
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid var(--bdr);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--t3);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--w); }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .modal-section {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--bdr-l);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .modal-section.full { grid-column: 1 / -1; }
+    .modal-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--g);
+      margin-bottom: 10px;
+    }
+    .modal-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--bdr-l);
+      font-size: 13px;
+    }
+    .modal-row:last-child { border-bottom: none; }
+    .modal-lbl { color: var(--t3); }
+    .modal-val { color: var(--t1); font-weight: 500; min-width: 0; }
+    .modal-note { font-size: 13px; color: var(--t2); line-height: 1.7; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 1200px) {
+      .summary-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .kanban { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--bdr);
+      }
+      .summary-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: 1fr; }
+      .modal-grid { grid-template-columns: 1fr; }
+      .modal-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+    @media (max-width: 640px) {
+      .topbar { align-items: flex-start; }
+      .tb-brand { flex-wrap: wrap; }
+      .tb-right { justify-content: flex-start; }
+      .summary-bar { grid-template-columns: 1fr; }
+      .toolbar-left, .toolbar-right { width: 100%; }
+      .toolbar-right { justify-content: space-between; }
+      .table-wrap { overflow-x: auto; }
+      .tbl { min-width: 920px; }
+      .active-filters { padding-left: 16px; padding-right: 16px; }
+      .kanban, .summary-bar, .toolbar, .table-wrap { padding-left: 16px; padding-right: 16px; }
+      .error-box { margin-left: 16px; margin-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="tb-brand">
+      <div class="tb-logo">Sporting <span>Market</span></div>
+      <div class="tb-module">Backlog de Sellers</div>
+    </div>
+    <div class="tb-right">
+      <div class="status-row">
+        <div class="dot load" id="status-dot"></div>
+        <span id="status-txt">Cargando datos…</span>
+      </div>
+      <div class="tb-date" id="last-update">—</div>
+      <label class="topbar-check">
+        <input type="checkbox" id="auto-refresh-toggle">
+        Auto refresh
+      </label>
+      <button class="btn-refresh" id="btn-refresh" onclick="loadData(true)">↻ Actualizar</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Buscar</div>
+        <input class="filter-input" type="text" id="search-input" placeholder="Nombre, categoría, ID…" oninput="applyFilters()">
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Orden</div>
+        <select class="select" id="sort-select" onchange="applyFilters()">
+          <option value="prioridad_desc">Prioridad alta primero</option>
+          <option value="nombre_asc">Nombre A → Z</option>
+          <option value="camino_asc">Camino</option>
+          <option value="fecha_contacto_asc">Primer contacto más antiguo</option>
+          <option value="fecha_golive_asc">Go-live más próximo</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">Camino</div>
+        <button class="filter-btn active" onclick="setFilter('camino','todos')" id="f-camino-todos"><span style="display:flex;align-items:center;gap:8px"><span class="camino-dot all-dot"></span>Todos</span><span class="filter-count" id="fc-todos">0</span></button>
+        <button class="filter-btn" onclick="setFilter('camino','rapida_activacion')" id="f-camino-c1"><span style="display:flex;align-items:center;gap:8px"><span class="camino-dot c1-dot"></span>Rápida activación</span><span class="filter-count" id="fc-c1">0</span></button>
+        <button class="filter-btn" onclick="setFilter('camino','integracion_vtex')" id="f-camino-c2"><span style="display:flex;align-items:center;gap:8px"><span class="camino-dot c2-dot"></span>Integración VTEX</span><span class="filter-count" id="fc-c2">0</span></button>
+        <button class="filter-btn" onclick="setFilter('camino','seller_center')" id="f-camino-c3"><span style="display:flex;align-items:center;gap:8px"><span class="camino-dot c3-dot"></span>Seller Center</span><span class="filter-count" id="fc-c3">0</span></button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">Prioridad</div>
+        <button class="filter-btn active" onclick="setFilter('prioridad','todos')" id="f-prioridad-todos"><span>Todas</span><span class="filter-count" id="fp-todos">0</span></button>
+        <button class="filter-btn" onclick="setFilter('prioridad','Alta')" id="f-prioridad-alta"><span>Alta</span><span class="filter-count" id="fp-alta">0</span></button>
+        <button class="filter-btn" onclick="setFilter('prioridad','Media')" id="f-prioridad-media"><span>Media</span><span class="filter-count" id="fp-media">0</span></button>
+        <button class="filter-btn" onclick="setFilter('prioridad','Baja')" id="f-prioridad-baja"><span>Baja</span><span class="filter-count" id="fp-baja">0</span></button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">Estado</div>
+        <button class="filter-btn active" onclick="setFilter('estado','todos')" id="f-estado-todos"><span>Todos</span><span class="filter-count" id="fe-todos">0</span></button>
+        <button class="filter-btn" onclick="setFilter('estado','Contactado')" id="f-estado-contactado"><span>Contactado</span><span class="filter-count" id="fe-contactado">0</span></button>
+        <button class="filter-btn" onclick="setFilter('estado','Relevamiento')" id="f-estado-relevamiento"><span>Relevamiento</span><span class="filter-count" id="fe-relevamiento">0</span></button>
+        <button class="filter-btn" onclick="setFilter('estado','Propuesta')" id="f-estado-propuesta"><span>Propuesta</span><span class="filter-count" id="fe-propuesta">0</span></button>
+        <button class="filter-btn" onclick="setFilter('estado','Acuerdo')" id="f-estado-acuerdo"><span>Acuerdo</span><span class="filter-count" id="fe-acuerdo">0</span></button>
+        <button class="filter-btn" onclick="setFilter('estado','Onboarding')" id="f-estado-onboarding"><span>Onboarding</span><span class="filter-count" id="fe-onboarding">0</span></button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sb-section">
+        <button class="btn-clear" style="width:100%" onclick="clearAllFilters()">Limpiar filtros</button>
+      </div>
+
+      <div class="sidebar-note">
+        La visual se alimenta desde Google Sheets publicado como CSV. Para evitar errores, no cambies los nombres de columnas ni elimines el ID del seller.
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="summary-bar">
+        <div class="kpi">
+          <div class="kpi-l">Total sellers</div>
+          <div class="kpi-n" id="kpi-total">—</div>
+          <div class="kpi-s">Pipeline activo</div>
+        </div>
+        <div class="kpi alt">
+          <div class="kpi-l">Alta prioridad</div>
+          <div class="kpi-n" id="kpi-alta">—</div>
+          <div class="kpi-s">Casos con foco inmediato</div>
+        </div>
+        <div class="kpi c1">
+          <div class="kpi-l">Rápida activación</div>
+          <div class="kpi-n" id="kpi-c1">—</div>
+          <div class="kpi-s">Camino corto / activación temprana</div>
+        </div>
+        <div class="kpi c2">
+          <div class="kpi-l">Integración VTEX</div>
+          <div class="kpi-n" id="kpi-c2">—</div>
+          <div class="kpi-s">Seller con integración VTEX</div>
+        </div>
+        <div class="kpi c3">
+          <div class="kpi-l">Seller Center</div>
+          <div class="kpi-n" id="kpi-c3">—</div>
+          <div class="kpi-s">Dependientes de readiness futura</div>
+        </div>
+      </section>
+
+      <section class="toolbar">
+        <div class="toolbar-left">
+          <div class="view-toggle">
+            <button class="view-btn active" id="btn-kanban" onclick="setView('kanban')">Kanban</button>
+            <button class="view-btn" id="btn-tabla" onclick="setView('tabla')">Tabla</button>
+          </div>
+          <span class="results-info" id="results-info">—</span>
+        </div>
+        <div class="toolbar-right">
+          <div class="inline-field">
+            <span class="inline-label">Refresh</span>
+            <select class="inline-select" id="refresh-interval" onchange="savePreferences(); updateAutoRefresh()">
+              <option value="60000">1 minuto</option>
+              <option value="300000">5 minutos</option>
+              <option value="900000">15 minutos</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="active-filters hidden" id="active-filters"></section>
+
+      <section id="content-area">
+        <div class="loader">
+          <div class="spinner"></div>
+          <span>Cargando sellers desde Google Sheets…</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:4px" id="m-id">—</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;color:var(--w);line-height:1.05" id="m-name">—</div>
+          <div style="font-size:13px;color:var(--t3);margin-top:4px" id="m-cat">—</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body">—</div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      SELLERS_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTqamEgnMHn53cESK7Ye1Pes_bzab1Ygjn8x-DtLAOZtQKNueCIg7cwl9n_iZcl3OZ5jlve5P_RZVxj/pub?gid=1848393362&single=true&output=csv',
+      STORAGE_KEY: 'sporting-backlog-sellers-preferences-v2'
+    };
+
+    const HEADER_ALIASES = {
+      'seller_id': ['seller_id', 'id_unico_del_seller', 'id_único_del_seller', 'id'],
+      'nombre': ['nombre', 'nombre_marca', 'nombre_marca_', 'nombre___marca'],
+      'categoria': ['categoria', 'categoría', 'categoria_principal', 'categoría_principal'],
+      'camino': ['camino', 'camino_de_integracion', 'camino_de_integración'],
+      'integracion': ['integracion', 'integración', 'tipo_de_integracion', 'tipo_de_integración'],
+      'etapa': ['etapa', 'etapa_actual'],
+      'estado': ['estado', 'estado_del_contacto'],
+      'proximo_paso': ['proximo_paso', 'próximo_paso'],
+      'fecha_contacto': ['fecha_contacto', 'fecha_primer_contacto'],
+      'fecha_estimada': ['fecha_estimada', 'fecha_estimada_go_live', 'fecha_estimada_go_live_'],
+      'contacto': ['contacto', 'persona_de_contacto'],
+      'email': ['email'],
+      'telefono': ['telefono', 'teléfono', 'telefono_whatsapp', 'teléfono_whatsapp'],
+      'gmv_estimado': ['gmv_estimado', 'gmv_estimado_ars_mes'],
+      'ticket_promedio': ['ticket_promedio', 'ticket_promedio_ars'],
+      'cuotas_max': ['cuotas_max', 'cuotas_máx'],
+      'devol_pct': ['devol_pct', 'devoluciones', '_devoluciones'],
+      'notas': ['notas', 'notas_observaciones', 'notas___observaciones'],
+      'prioridad': ['prioridad']
+    };
+
+    let ALL_SELLERS = [];
+    let currentView = 'kanban';
+    let activeFilters = { camino: 'todos', prioridad: 'todos', estado: 'todos' };
+    let autoRefreshHandle = null;
+    let isLoading = false;
+
+    function normalizeHeader(text) {
+      return String(text || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cell = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            cell += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(cell);
+          cell = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = '';
+        } else {
+          cell += char;
+        }
+      }
+      row.push(cell);
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      return rows;
+    }
+
+    function mapHeaders(headerRow) {
+      const mapped = headerRow.map(h => normalizeHeader(h));
+      return mapped.map(h => {
+        for (const [target, aliases] of Object.entries(HEADER_ALIASES)) {
+          if (aliases.includes(h)) return target;
+        }
+        return h;
+      });
+    }
+
+    function transformRows(matrix) {
+      const validRows = matrix.filter(r => r.some(v => String(v || '').trim() !== ''));
+      const headerIndex = validRows.findIndex(r => r.some(v => normalizeHeader(v).includes('id_unico_del_seller') || normalizeHeader(v) === 'seller_id'));
+      if (headerIndex === -1) throw new Error('No se encontró la fila de encabezados esperada.');
+
+      const headers = mapHeaders(validRows[headerIndex]);
+      const records = [];
+
+      for (let i = headerIndex + 1; i < validRows.length; i++) {
+        const row = validRows[i];
+        const obj = {};
+        headers.forEach((h, idx) => obj[h] = String(row[idx] || '').trim());
+        if (!obj.seller_id || !/^SPT-/i.test(obj.seller_id)) continue;
+        records.push(normalizeRecord(obj));
+      }
+
+      if (!records.length) throw new Error('No se encontraron filas válidas con seller_id.');
+      return records;
+    }
+
+    function normalizeRecord(obj) {
+      const normalized = { ...obj };
+      normalized.nombre = normalized.nombre || '—';
+      normalized.categoria = normalized.categoria || '—';
+      normalized.camino = normalizeCamino(normalized.camino);
+      normalized.integracion = normalizeIntegracion(normalized.integracion);
+      normalized.etapa = normalized.etapa || '';
+      normalized.estado = normalized.estado || deriveEstadoFromEtapa(normalized.etapa) || 'Pendiente';
+      normalized.prioridad = capitalize(normalized.prioridad || 'Media');
+      return normalized;
+    }
+
+    function normalizeCamino(value) {
+      const v = normalizeHeader(value);
+      if (v.includes('rapida')) return 'rapida_activacion';
+      if (v.includes('integracion_vtex') || v.includes('vtex')) return 'integracion_vtex';
+      if (v.includes('seller_center')) return 'seller_center';
+      return value || '—';
+    }
+
+    function normalizeIntegracion(value) {
+      const raw = String(value || '').trim();
+      const v = normalizeHeader(raw);
+      if (v.includes('sistemas_actuales')) return 'Sistemas actuales';
+      if (v.includes('seller_center')) return 'Seller Center';
+      if (v.includes('vtex')) return 'VTEX → VTEX';
+      return raw || '—';
+    }
+
+    function deriveEstadoFromEtapa(etapa) {
+      const v = normalizeHeader(etapa);
+      if (v.includes('relevamiento')) return 'Relevamiento';
+      if (v.includes('propuesta')) return 'Propuesta';
+      if (v.includes('acuerdo')) return 'Acuerdo';
+      if (v.includes('onboarding')) return 'Onboarding';
+      if (v.includes('go_live') || v.includes('golive')) return 'Go-live';
+      if (v.includes('contacto')) return 'Contactado';
+      return '';
+    }
+
+    function capitalize(value) {
+      const v = String(value || '').trim();
+      return v ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase() : '';
+    }
+
+    function setStatus(type, text) {
+      const dot = document.getElementById('status-dot');
+      dot.className = 'dot';
+      if (type === 'live') dot.classList.add('live');
+      else if (type === 'err') dot.classList.add('err');
+      else dot.classList.add('load');
+      document.getElementById('status-txt').textContent = text;
+    }
+
+    function formatDateTime(date) {
+      return date.toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    }
+
+    async function loadData(manual = false) {
+      if (isLoading) return;
+      isLoading = true;
+      const btn = document.getElementById('btn-refresh');
+      btn.disabled = true;
+      setStatus('load', manual ? 'Actualizando…' : 'Cargando datos…');
+      try {
+        const url = CONFIG.SELLERS_URL + (CONFIG.SELLERS_URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const matrix = parseCSV(text);
+        ALL_SELLERS = transformRows(matrix);
+        setStatus('live', `Google Sheets · ${ALL_SELLERS.length} sellers`);
+        document.getElementById('last-update').textContent = 'Actualizado: ' + formatDateTime(new Date());
+        applyFilters();
+      } catch (error) {
+        console.error(error);
+        setStatus('err', 'Error cargando datos');
+        renderError(error);
+      } finally {
+        isLoading = false;
+        btn.disabled = false;
+      }
+    }
+
+    function renderError(error) {
+      document.getElementById('content-area').innerHTML = `
+        <div class="error-box">
+          <div class="error-title">Error al cargar datos</div>
+          <div class="error-body">
+            No se pudo conectar o interpretar el archivo publicado de Google Sheets.<br><br>
+            <strong>Detalle:</strong> ${escapeHtml(error.message || 'Error desconocido')}<br><br>
+            Revisá que la hoja siga publicada como CSV, que el gid sea correcto y que la estructura de columnas no haya cambiado.
+          </div>
+          <div class="error-url">${escapeHtml(CONFIG.SELLERS_URL)}</div>
+        </div>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function caminoLabel(value) {
+      if (value === 'rapida_activacion') return 'Rápida activación';
+      if (value === 'integracion_vtex') return 'Integración VTEX';
+      if (value === 'seller_center') return 'Seller Center';
+      return value || '—';
+    }
+
+    function caminoSub(value) {
+      if (value === 'rapida_activacion') return 'Activación temprana';
+      if (value === 'integracion_vtex') return 'Integración estructurada';
+      if (value === 'seller_center') return 'Dependencia roadmap';
+      return '';
+    }
+
+    function caminoClass(value) {
+      if (value === 'rapida_activacion') return 'c1';
+      if (value === 'integracion_vtex') return 'c2';
+      if (value === 'seller_center') return 'c3';
+      return '';
+    }
+
+    function integClass(value) {
+      const v = normalizeHeader(value);
+      if (v.includes('sistemas_actuales')) return 'integ-sa';
+      if (v.includes('seller_center')) return 'integ-sc';
+      if (v.includes('vtex')) return 'integ-vv';
+      return 'integ-sa';
+    }
+
+    function estadoBadgeClass(value) {
+      const v = normalizeHeader(value);
+      if (v.includes('contactado')) return 'e-contactado';
+      if (v.includes('relevamiento')) return 'e-relevamiento';
+      if (v.includes('propuesta')) return 'e-propuesta';
+      if (v.includes('acuerdo')) return 'e-acuerdo';
+      if (v.includes('onboarding')) return 'e-onboarding';
+      if (v.includes('go_live') || v.includes('golive')) return 'e-golive';
+      if (v.includes('pausado')) return 'e-pausado';
+      return 'e-default';
+    }
+
+    function priClass(value) {
+      const v = normalizeHeader(value);
+      if (v === 'alta') return 'pri-alta';
+      if (v === 'media') return 'pri-media';
+      return 'pri-baja';
+    }
+
+    function setFilter(type, value) {
+      activeFilters[type] = value;
+      document.querySelectorAll(`[id^="f-${type}-"]`).forEach(el => el.classList.remove('active'));
+      const id = `f-${type}-${normalizeHeader(value) || 'todos'}`;
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.add('active');
+      savePreferences();
+      applyFilters();
+    }
+
+    function clearAllFilters() {
+      document.getElementById('search-input').value = '';
+      activeFilters = { camino: 'todos', prioridad: 'todos', estado: 'todos' };
+      document.getElementById('sort-select').value = 'prioridad_desc';
+      ['camino', 'prioridad', 'estado'].forEach(type => {
+        document.querySelectorAll(`[id^="f-${type}-"]`).forEach(el => el.classList.remove('active'));
+        const defaultBtn = document.getElementById(`f-${type}-todos`);
+        if (defaultBtn) defaultBtn.classList.add('active');
+      });
+      savePreferences();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('search-input').value.trim().toLowerCase();
+      let filtered = ALL_SELLERS.filter(item => {
+        if (activeFilters.camino !== 'todos' && item.camino !== activeFilters.camino) return false;
+        if (activeFilters.prioridad !== 'todos' && normalizeHeader(item.prioridad) !== normalizeHeader(activeFilters.prioridad)) return false;
+        if (activeFilters.estado !== 'todos' && !normalizeHeader(item.estado).includes(normalizeHeader(activeFilters.estado))) return false;
+
+        if (search) {
+          const bucket = [
+            item.seller_id, item.nombre, item.categoria, item.camino, item.integracion,
+            item.etapa, item.estado, item.proximo_paso, item.notas, item.contacto
+          ].join(' ').toLowerCase();
+          if (!bucket.includes(search)) return false;
+        }
+        return true;
+      });
+
+      filtered = sortRecords(filtered, document.getElementById('sort-select').value);
+      updateCounts(filtered);
+      renderActiveFilters(search);
+      renderContent(filtered);
+    }
+
+    function sortRecords(items, mode) {
+      const arr = [...items];
+      const priorityRank = { alta: 3, media: 2, baja: 1, '': 0 };
+
+      const parseLooseDate = (value) => {
+        const raw = String(value || '').trim();
+        if (!raw) return Number.MAX_SAFE_INTEGER;
+        if (/^\d{4}-\d{2}$/.test(raw)) return new Date(raw + '-01').getTime();
+        const d = Date.parse(raw);
+        return Number.isNaN(d) ? Number.MAX_SAFE_INTEGER : d;
+      };
+
+      arr.sort((a, b) => {
+        switch (mode) {
+          case 'nombre_asc':
+            return a.nombre.localeCompare(b.nombre, 'es');
+          case 'camino_asc':
+            return caminoLabel(a.camino).localeCompare(caminoLabel(b.camino), 'es') || a.nombre.localeCompare(b.nombre, 'es');
+          case 'fecha_contacto_asc':
+            return parseLooseDate(a.fecha_contacto) - parseLooseDate(b.fecha_contacto) || a.nombre.localeCompare(b.nombre, 'es');
+          case 'fecha_golive_asc':
+            return parseLooseDate(a.fecha_estimada) - parseLooseDate(b.fecha_estimada) || a.nombre.localeCompare(b.nombre, 'es');
+          case 'prioridad_desc':
+          default:
+            return (priorityRank[normalizeHeader(b.prioridad)] || 0) - (priorityRank[normalizeHeader(a.prioridad)] || 0)
+              || caminoLabel(a.camino).localeCompare(caminoLabel(b.camino), 'es')
+              || a.nombre.localeCompare(b.nombre, 'es');
+        }
+      });
+      return arr;
+    }
+
+    function updateCounts(filtered) {
+      const by = (fn) => ALL_SELLERS.filter(fn).length;
+      document.getElementById('kpi-total').textContent = ALL_SELLERS.length;
+      document.getElementById('kpi-alta').textContent = by(x => normalizeHeader(x.prioridad) === 'alta');
+      document.getElementById('kpi-c1').textContent = by(x => x.camino === 'rapida_activacion');
+      document.getElementById('kpi-c2').textContent = by(x => x.camino === 'integracion_vtex');
+      document.getElementById('kpi-c3').textContent = by(x => x.camino === 'seller_center');
+
+      updateFilterCounter('fc-todos', ALL_SELLERS.length);
+      updateFilterCounter('fc-c1', by(x => x.camino === 'rapida_activacion'));
+      updateFilterCounter('fc-c2', by(x => x.camino === 'integracion_vtex'));
+      updateFilterCounter('fc-c3', by(x => x.camino === 'seller_center'));
+
+      updateFilterCounter('fp-todos', ALL_SELLERS.length);
+      updateFilterCounter('fp-alta', by(x => normalizeHeader(x.prioridad) === 'alta'));
+      updateFilterCounter('fp-media', by(x => normalizeHeader(x.prioridad) === 'media'));
+      updateFilterCounter('fp-baja', by(x => normalizeHeader(x.prioridad) === 'baja'));
+
+      updateFilterCounter('fe-todos', ALL_SELLERS.length);
+      updateFilterCounter('fe-contactado', by(x => normalizeHeader(x.estado).includes('contactado')));
+      updateFilterCounter('fe-relevamiento', by(x => normalizeHeader(x.estado).includes('relevamiento')) || by(x => normalizeHeader(x.etapa).includes('relevamiento')));
+      updateFilterCounter('fe-propuesta', by(x => normalizeHeader(x.estado).includes('propuesta') || normalizeHeader(x.etapa).includes('propuesta')));
+      updateFilterCounter('fe-acuerdo', by(x => normalizeHeader(x.estado).includes('acuerdo') || normalizeHeader(x.etapa).includes('acuerdo')));
+      updateFilterCounter('fe-onboarding', by(x => normalizeHeader(x.estado).includes('onboarding') || normalizeHeader(x.etapa).includes('onboarding')));
+
+      document.getElementById('results-info').textContent = filtered.length === ALL_SELLERS.length
+        ? `${ALL_SELLERS.length} sellers en total`
+        : `${filtered.length} de ${ALL_SELLERS.length} sellers`;
+    }
+
+    function updateFilterCounter(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function renderActiveFilters(search) {
+      const box = document.getElementById('active-filters');
+      const chips = [];
+      if (search) chips.push(`<span class="filter-chip">Buscar: <strong>${escapeHtml(search)}</strong></span>`);
+      if (activeFilters.camino !== 'todos') chips.push(`<span class="filter-chip">Camino: <strong>${escapeHtml(caminoLabel(activeFilters.camino))}</strong></span>`);
+      if (activeFilters.prioridad !== 'todos') chips.push(`<span class="filter-chip">Prioridad: <strong>${escapeHtml(activeFilters.prioridad)}</strong></span>`);
+      if (activeFilters.estado !== 'todos') chips.push(`<span class="filter-chip">Estado: <strong>${escapeHtml(activeFilters.estado)}</strong></span>`);
+      if (chips.length) {
+        chips.push(`<button class="btn-chip" onclick="clearAllFilters()">Limpiar</button>`);
+        box.innerHTML = chips.join('');
+        box.classList.remove('hidden');
+      } else {
+        box.innerHTML = '';
+        box.classList.add('hidden');
+      }
+    }
+
+    function renderContent(filtered) {
+      if (!ALL_SELLERS.length) {
+        document.getElementById('content-area').innerHTML = `<div class="empty"><div class="empty-icon">○</div><div>No hay sellers para mostrar.</div></div>`;
+        return;
+      }
+      if (currentView === 'kanban') renderKanban(filtered);
+      else renderTable(filtered);
+    }
+
+    function sellerCardHTML(item) {
+      return `
+        <article class="seller-card" onclick="openModal('${escapeHtml(item.seller_id)}')">
+          <div class="sc-head">
+            <span class="sc-id">${escapeHtml(item.seller_id)}</span>
+            <span class="sc-pri ${priClass(item.prioridad)}">${escapeHtml(item.prioridad || '—')}</span>
+          </div>
+          <div class="sc-name">${escapeHtml(item.nombre)}</div>
+          <div class="sc-cat">${escapeHtml(item.categoria)}</div>
+          <div class="sc-tags">
+            <span class="tag ${integClass(item.integracion)}">${escapeHtml(item.integracion)}</span>
+            <span class="tag ${estadoBadgeClass(item.estado)}">${escapeHtml(item.estado.split('·')[0].trim())}</span>
+          </div>
+          <div class="sc-grid">
+            <div class="mini-field">
+              <div class="mini-label">Próximo paso</div>
+              <div class="mini-value">${escapeHtml(item.proximo_paso || '—')}</div>
+            </div>
+            <div class="mini-field">
+              <div class="mini-label">Go-live estimado</div>
+              <div class="mini-value">${escapeHtml(item.fecha_estimada || '—')}</div>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderKanban(filtered) {
+      const groups = [
+        { key: 'rapida_activacion', title: 'Rápida activación', sub: caminoSub('rapida_activacion'), className: 'c1' },
+        { key: 'integracion_vtex', title: 'Integración VTEX', sub: caminoSub('integracion_vtex'), className: 'c2' },
+        { key: 'seller_center', title: 'Seller Center', sub: caminoSub('seller_center'), className: 'c3' }
+      ];
+
+      document.getElementById('content-area').innerHTML = `
+        <div class="kanban">
+          ${groups.map(group => {
+            const rows = filtered.filter(x => x.camino === group.key);
+            return `
+              <section class="kanban-col ${group.className}">
+                <div class="kanban-head">
+                  <div>
+                    <div class="kanban-title">${group.title}</div>
+                    <div class="kanban-sub">${group.sub}</div>
+                  </div>
+                  <div class="kanban-count">${rows.length}</div>
+                </div>
+                <div class="kanban-body">
+                  ${rows.length ? rows.map(sellerCardHTML).join('') : `<div class="empty"><div class="empty-icon">○</div><div>Sin sellers para este camino</div></div>`}
+                </div>
+              </section>`;
+          }).join('')}
+        </div>`;
+    }
+
+    function renderTable(filtered) {
+      if (!filtered.length) {
+        document.getElementById('content-area').innerHTML = `<div class="empty"><div class="empty-icon">○</div><div>Sin resultados para los filtros aplicados</div></div>`;
+        return;
+      }
+
+      document.getElementById('content-area').innerHTML = `
+        <div class="table-wrap">
+          <div class="table-shell">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Seller</th>
+                  <th>Categoría</th>
+                  <th>Camino</th>
+                  <th>Integración</th>
+                  <th>Estado</th>
+                  <th>Próximo paso</th>
+                  <th>Go-live</th>
+                  <th>Prioridad</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filtered.map(item => `
+                  <tr onclick="openModal('${escapeHtml(item.seller_id)}')" style="cursor:pointer">
+                    <td class="td-id">${escapeHtml(item.seller_id)}</td>
+                    <td><div class="td-name">${escapeHtml(item.nombre)}</div></td>
+                    <td>${escapeHtml(item.categoria || '—')}</td>
+                    <td><span class="td-camino ${caminoClass(item.camino)}" style="background:${caminoClass(item.camino)==='c1'?'var(--info-dim)':caminoClass(item.camino)==='c2'?'var(--teal-dim)':'var(--warn-dim)'};color:${caminoClass(item.camino)==='c1'?'var(--info)':caminoClass(item.camino)==='c2'?'var(--teal)':'var(--warn)'}">${escapeHtml(caminoLabel(item.camino))}</span></td>
+                    <td><span class="tag ${integClass(item.integracion)}">${escapeHtml(item.integracion)}</span></td>
+                    <td><span class="td-estado ${estadoBadgeClass(item.estado)}">${escapeHtml(item.estado.split('·')[0].trim())}</span></td>
+                    <td class="td-next">${escapeHtml(item.proximo_paso || '—')}</td>
+                    <td>${escapeHtml(item.fecha_estimada || '—')}</td>
+                    <td><span class="sc-pri ${priClass(item.prioridad)}">${escapeHtml(item.prioridad || '—')}</span></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.getElementById('btn-kanban').classList.toggle('active', view === 'kanban');
+      document.getElementById('btn-tabla').classList.toggle('active', view === 'tabla');
+      savePreferences();
+      applyFilters();
+    }
+
+    function openModal(id) {
+      const item = ALL_SELLERS.find(x => x.seller_id === id);
+      if (!item) return;
+
+      document.getElementById('m-id').textContent = item.seller_id;
+      document.getElementById('m-name').textContent = item.nombre;
+      document.getElementById('m-cat').textContent = item.categoria;
+
+      const row = (label, value) => value ? `
+        <div class="modal-row">
+          <div class="modal-lbl">${label}</div>
+          <div class="modal-val">${value}</div>
+        </div>` : '';
+
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-grid">
+          <section class="modal-section">
+            <div class="modal-section-title">Pipeline</div>
+            ${row('Camino', `<span class="tag ${caminoClass(item.camino) === 'c1' ? 'integ-sa' : caminoClass(item.camino) === 'c2' ? 'integ-vv' : 'integ-sc'}">${escapeHtml(caminoLabel(item.camino))}</span>`)}
+            ${row('Integración', escapeHtml(item.integracion || '—'))}
+            ${row('Etapa actual', escapeHtml(item.etapa || '—'))}
+            ${row('Estado', `<span class="tag ${estadoBadgeClass(item.estado)}">${escapeHtml(item.estado || '—')}</span>`)}
+            ${row('Prioridad', `<span class="sc-pri ${priClass(item.prioridad)}">${escapeHtml(item.prioridad || '—')}</span>`)}
+          </section>
+          <section class="modal-section">
+            <div class="modal-section-title">Fechas</div>
+            ${row('Primer contacto', escapeHtml(item.fecha_contacto || '—'))}
+            ${row('Go-live estimado', escapeHtml(item.fecha_estimada || '—'))}
+            ${row('Próximo paso', escapeHtml(item.proximo_paso || '—'))}
+          </section>
+          <section class="modal-section">
+            <div class="modal-section-title">Contacto</div>
+            ${row('Persona', escapeHtml(item.contacto || '—'))}
+            ${row('Email', escapeHtml(item.email || '—'))}
+            ${row('Teléfono', escapeHtml(item.telefono || '—'))}
+          </section>
+          <section class="modal-section">
+            <div class="modal-section-title">Datos económicos</div>
+            ${row('GMV estimado', escapeHtml(item.gmv_estimado || '—'))}
+            ${row('Ticket promedio', escapeHtml(item.ticket_promedio || '—'))}
+            ${row('Cuotas máx.', escapeHtml(item.cuotas_max || '—'))}
+            ${row('% devoluciones', escapeHtml(item.devol_pct ? item.devol_pct + '%' : '—'))}
+          </section>
+          <section class="modal-section full ${item.notas ? '' : 'hidden'}">
+            <div class="modal-section-title">Notas / Observaciones</div>
+            <div class="modal-note">${escapeHtml(item.notas || '')}</div>
+          </section>
+        </div>`;
+
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal(event) {
+      if (!event || event.target === document.getElementById('modal-overlay')) {
+        document.getElementById('modal-overlay').classList.remove('open');
+      }
+    }
+
+    function savePreferences() {
+      const prefs = {
+        currentView,
+        activeFilters,
+        search: document.getElementById('search-input').value,
+        sort: document.getElementById('sort-select').value,
+        autoRefresh: document.getElementById('auto-refresh-toggle').checked,
+        refreshInterval: document.getElementById('refresh-interval').value
+      };
+      localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(prefs));
+    }
+
+    function loadPreferences() {
+      try {
+        const raw = localStorage.getItem(CONFIG.STORAGE_KEY);
+        if (!raw) return;
+        const prefs = JSON.parse(raw);
+        if (prefs.currentView) currentView = prefs.currentView;
+        if (prefs.activeFilters) activeFilters = { ...activeFilters, ...prefs.activeFilters };
+        if (typeof prefs.search === 'string') document.getElementById('search-input').value = prefs.search;
+        if (prefs.sort) document.getElementById('sort-select').value = prefs.sort;
+        if (prefs.refreshInterval) document.getElementById('refresh-interval').value = prefs.refreshInterval;
+        document.getElementById('auto-refresh-toggle').checked = Boolean(prefs.autoRefresh);
+      } catch (e) {
+        console.warn('No se pudieron cargar preferencias', e);
+      }
+    }
+
+    function applySavedFiltersToButtons() {
+      ['camino', 'prioridad', 'estado'].forEach(type => {
+        document.querySelectorAll(`[id^="f-${type}-"]`).forEach(el => el.classList.remove('active'));
+        const value = activeFilters[type] || 'todos';
+        const btn = document.getElementById(`f-${type}-${normalizeHeader(value) || 'todos'}`);
+        if (btn) btn.classList.add('active');
+      });
+      document.getElementById('btn-kanban').classList.toggle('active', currentView === 'kanban');
+      document.getElementById('btn-tabla').classList.toggle('active', currentView === 'tabla');
+    }
+
+    function updateAutoRefresh() {
+      if (autoRefreshHandle) clearInterval(autoRefreshHandle);
+      if (document.getElementById('auto-refresh-toggle').checked) {
+        const ms = Number(document.getElementById('refresh-interval').value || 60000);
+        autoRefreshHandle = setInterval(() => loadData(false), ms);
+      }
+      savePreferences();
+    }
+
+    document.getElementById('auto-refresh-toggle').addEventListener('change', updateAutoRefresh);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+      }
+    });
+
+    loadPreferences();
+    applySavedFiltersToButtons();
+    updateAutoRefresh();
+    loadData(false);
+  </script>
+</body>
+</html>
