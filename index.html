@@ -1597,7 +1597,6 @@
         seller_id: ["seller_id", "id_unico_del_seller", "id_unico"],
         nombre: ["nombre", "seller_nombre", "nombre_marca", "nombre___marca"],
         categoria: ["categoria", "categoría", "categoria_principal"],
-        subcategoria: ["subcategoria", "subcategoría"],
         camino: ["camino", "camino_de_integracion", "camino_de_integración"],
         modelo_integracion: [
           "modelo_integracion",
@@ -1606,14 +1605,10 @@
           "tipo_de_integracion",
           "modelo_de_integracion",
         ],
-        owner: ["owner", "responsable"],
-        area_lider: ["area_lider", "área_lider", "area"],
-        estado_macro: ["estado_macro", "estado", "estado_del_contacto"],
         etapa_actual: ["etapa_actual", "etapa"],
         prioridad: ["prioridad"],
         proximo_paso: ["proximo_paso", "próximo_paso"],
         progreso_pct: ["progreso_pct", "progreso"],
-        hito_actual: ["hito_actual", "hito"],
         bloqueo_flag: ["bloqueo_flag", "bloqueo"],
         bloqueo_resumen: ["bloqueo_resumen"],
         riesgo_nivel: ["riesgo_nivel", "riesgo"],
@@ -1770,8 +1765,7 @@
         v.modelo_integracion = normInteg(
           v.modelo_integracion || v.integracion || "",
         );
-        v.estado_macro =
-          v.estado_macro || deriveEstado(v.etapa_actual) || "Contactado";
+        v.estado_macro = deriveEstado(v.etapa_actual) || "Contactado";
         v.prioridad = cap(v.prioridad || "Media");
         v.progreso_pct = Math.min(
           100,
@@ -1926,7 +1920,6 @@
               s.nombre,
               s.categoria,
               s.camino,
-              s.owner,
               s.etapa_actual,
               s.estado_macro,
               s.proximo_paso,
@@ -2231,15 +2224,6 @@
         <div class="mini-val">${esc(s.go_live_objetivo || "—")}</div>
       </div>
     </div>
-    ${
-      s.owner
-        ? `
-    <div class="scard-owner">
-      <div class="owner-dot">${esc(ownerInitials(s.owner))}</div>
-      <span class="owner-name">${esc(s.owner)}</span>
-    </div>`
-        : ""
-    }
   </article>`;
       }
 
@@ -2303,7 +2287,7 @@
               <th class="td-blk"></th>
               <th>ID</th><th>Seller</th><th>Categoría</th><th>Plataforma</th><th>Sitio</th><th>Camino</th>
               <th>Integración</th><th>Estado</th><th>Avance</th>
-              <th>Próximo paso</th><th>Go-live</th><th>Owner</th><th>Prioridad</th>
+              <th>Próximo paso</th><th>Go-live</th><th>Prioridad</th>
             </tr>
           </thead>
           <tbody>
@@ -2334,7 +2318,6 @@
                 </td>
                 <td class="td-next">${esc(s.proximo_paso || "—")}</td>
                 <td>${esc(s.go_live_objetivo || "—")}</td>
-                <td class="td-owner">${esc(s.owner || "—")}</td>
                 <td><span class="sc-pri ${priClass(s.prioridad)}">${esc(s.prioridad || "—")}</span></td>
               </tr>`;
               })
@@ -2351,8 +2334,7 @@
         if (!s) return;
         $("m-id").textContent = s.seller_id;
         $("m-name").textContent = s.nombre;
-        $("m-cat").textContent =
-          s.categoria + (s.subcategoria ? " · " + s.subcategoria : "");
+        $("m-cat").textContent = s.categoria || "—";
         const logo = $("m-logo");
         const logoUrl = safeUrl(s.logo_url);
         if (logoUrl) {
@@ -2385,7 +2367,7 @@
     <div class="m-prog">
       <div class="m-prog-head">
         <span class="m-prog-lbl">Progreso general</span>
-        <span class="m-prog-val">${Math.round(s.progreso_pct)}%${s.hito_actual ? " · " + esc(s.hito_actual) : ""}</span>
+        <span class="m-prog-val">${Math.round(s.progreso_pct)}%</span>
       </div>
       <div class="m-prog-track">
         <div class="m-prog-fill ${progClass(s.progreso_pct)}" style="width:${s.progreso_pct}%"></div>
@@ -2409,9 +2391,7 @@
         ${row("Riesgo", esc(s.riesgo_nivel || "—"))}
       </div>
       <div class="msec">
-        <div class="msec-title">Responsable y fechas</div>
-        ${row("Owner", esc(s.owner || "—"))}
-        ${row("Área líder", esc(s.area_lider || "—"))}
+        <div class="msec-title">Fechas clave</div>
         ${row("Primer contacto", esc(s.fecha_contacto || "—"))}
         ${row("Inicio onboarding", esc(s.fecha_inicio_onboarding || "—"))}
         ${row("Go-live objetivo", esc(s.go_live_objetivo || "—"))}
