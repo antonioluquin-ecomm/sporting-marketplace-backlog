@@ -651,6 +651,73 @@
         margin-bottom: 9px;
       }
 
+      .scard-brand {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .seller-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--bdr);
+        padding: 4px;
+        flex-shrink: 0;
+      }
+      .seller-logo.hidden {
+        display: none;
+      }
+      .seller-meta {
+        min-width: 0;
+      }
+      .meta-line {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 5px;
+      }
+      .mini-chip {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--t3);
+        font-size: 10px;
+        font-weight: 600;
+      }
+      .m-head-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .m-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--bdr);
+        padding: 5px;
+        flex-shrink: 0;
+      }
+      .m-logo.hidden {
+        display: none;
+      }
+      .link-out {
+        color: var(--g);
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .link-out:hover {
+        text-decoration: underline;
+      }
+
       /* Tags row */
       .scard-tags {
         display: flex;
@@ -1430,8 +1497,7 @@
         </div>
 
         <div class="sb-note">
-          Datos desde Google Sheets · Actualizá para reflejar cambios. No
-          modifiques los nombres de columnas ni el seller_id en el Sheet.
+          Datos desde Google Sheets · Actualizá para reflejar cambios. Podés sumar columnas nuevas, pero no modifiques seller_id ni los campos core.
         </div>
       </aside>
 
@@ -1502,10 +1568,13 @@
     <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
       <div class="modal" id="modal">
         <div class="modal-hd">
-          <div>
-            <div class="m-id" id="m-id">—</div>
-            <div class="m-name" id="m-name">—</div>
-            <div class="m-cat" id="m-cat">—</div>
+          <div class="m-head-main">
+            <img class="m-logo hidden" id="m-logo" alt="" />
+            <div>
+              <div class="m-id" id="m-id">—</div>
+              <div class="m-name" id="m-name">—</div>
+              <div class="m-cat" id="m-cat">—</div>
+            </div>
           </div>
           <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
@@ -1570,6 +1639,11 @@
         ticket_promedio: ["ticket_promedio", "ticket_promedio_ars"],
         cuotas_max: ["cuotas_max", "cuotas_max_", "cuotas_máx"],
         devol_pct: ["devol_pct", "_devoluciones", "devoluciones"],
+        seller_url: ["seller_url", "url_seller", "sitio_seller", "web_seller", "sitio_web"],
+        plataforma: ["plataforma", "sistema", "sistema_plataforma", "tecnologia", "tecnología"],
+        sitio_objetivo: ["sitio_objetivo", "canal_objetivo", "sitio", "sitio_destino"],
+        logo_url: ["logo_url", "logo", "url_logo", "imagen_logo"],
+        observaciones: ["observaciones", "comentarios", "observaciones_detalle"],
         activo: ["activo"],
         notas: ["notas", "notas_observaciones", "observaciones_resumen"],
       };
@@ -1602,6 +1676,24 @@
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "_")
           .replace(/^_+|_+$/g, "");
+
+      const safeUrl = (u) => {
+        const v = String(u || "").trim();
+        if (!v) return "";
+        try {
+          const url = new URL(v, window.location.href);
+          return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+        } catch (e) {
+          return "";
+        }
+      };
+
+      const linkHTML = (url, label = "Abrir sitio") => {
+        const href = safeUrl(url);
+        return href
+          ? `<a class="link-out" href="${esc(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(label)} ↗</a>`
+          : "";
+      };
 
       /* ── CSV PARSER — handles quoted fields, \r\n ── */
       function parseCSV(text) {
@@ -1838,6 +1930,10 @@
               s.etapa_actual,
               s.estado_macro,
               s.proximo_paso,
+              s.plataforma,
+              s.sitio_objetivo,
+              s.seller_url,
+              s.observaciones,
               s.notas,
             ]
               .join(" ")
@@ -2101,8 +2197,14 @@
         <span class="sc-pri ${priClass(s.prioridad)}">${esc(s.prioridad || "—")}</span>
       </div>
     </div>
-    <div class="scard-name">${esc(s.nombre)}</div>
-    <div class="scard-cat">${esc(s.categoria)}</div>
+    <div class="scard-brand">
+      ${safeUrl(s.logo_url) ? `<img class="seller-logo" src="${esc(safeUrl(s.logo_url))}" alt="Logo ${esc(s.nombre)}" loading="lazy" onerror="this.classList.add('hidden')">` : ""}
+      <div class="seller-meta">
+        <div class="scard-name">${esc(s.nombre)}</div>
+        <div class="scard-cat">${esc(s.categoria)}</div>
+        ${(s.plataforma || s.sitio_objetivo) ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}</div>` : ""}
+      </div>
+    </div>
     <div class="scard-tags">
       <span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span>
       <span class="tag ${estadoClass(s.estado_macro)}">${esc(estadoLabel)}</span>
@@ -2199,7 +2301,7 @@
           <thead>
             <tr>
               <th class="td-blk"></th>
-              <th>ID</th><th>Seller</th><th>Categoría</th><th>Camino</th>
+              <th>ID</th><th>Seller</th><th>Categoría</th><th>Plataforma</th><th>Sitio</th><th>Camino</th>
               <th>Integración</th><th>Estado</th><th>Avance</th>
               <th>Próximo paso</th><th>Go-live</th><th>Owner</th><th>Prioridad</th>
             </tr>
@@ -2219,6 +2321,8 @@
                 <td class="td-id">${esc(s.seller_id)}</td>
                 <td><div class="td-name">${esc(s.nombre)}</div></td>
                 <td>${esc(s.categoria || "—")}</td>
+                <td>${esc(s.plataforma || "—")}</td>
+                <td>${esc(s.sitio_objetivo || "—")}</td>
                 <td><span class="tag ${cc}-tag">${esc(caminoLabel(s.camino))}</span></td>
                 <td><span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span></td>
                 <td><span class="tag ${estadoClass(s.estado_macro)}">${esc((s.estado_macro || "—").split("·")[0].trim())}</span></td>
@@ -2249,6 +2353,16 @@
         $("m-name").textContent = s.nombre;
         $("m-cat").textContent =
           s.categoria + (s.subcategoria ? " · " + s.subcategoria : "");
+        const logo = $("m-logo");
+        const logoUrl = safeUrl(s.logo_url);
+        if (logoUrl) {
+          logo.src = logoUrl;
+          logo.alt = `Logo ${s.nombre || "seller"}`;
+          logo.classList.remove("hidden");
+        } else {
+          logo.removeAttribute("src");
+          logo.classList.add("hidden");
+        }
 
         const row = (lbl, val) =>
           val && val !== "—"
@@ -2286,6 +2400,9 @@
         <div class="msec-title">Pipeline</div>
         ${row("Camino", `<span class="tag ${caminoClass(s.camino)}-tag">${esc(caminoLabel(s.camino))}</span>`)}
         ${row("Integración", esc(s.modelo_integracion || "—"))}
+        ${row("Plataforma", esc(s.plataforma || "—"))}
+        ${row("Sitio objetivo", esc(s.sitio_objetivo || "—"))}
+        ${row("Sitio del seller", linkHTML(s.seller_url, s.seller_url || "Abrir sitio"))}
         ${row("Etapa actual", esc(s.etapa_actual || "—"))}
         ${row("Estado", `<span class="tag ${estadoClass(s.estado_macro)}">${esc(s.estado_macro || "—")}</span>`)}
         ${row("Prioridad", `<span class="sc-pri ${priClass(s.prioridad)}">${esc(s.prioridad || "—")}</span>`)}
@@ -2328,11 +2445,11 @@
           : ""
       }
       ${
-        s.notas
+        s.observaciones || s.notas
           ? `
       <div class="msec full">
-        <div class="msec-title">Notas</div>
-        <div class="modal-note">${esc(s.notas)}</div>
+        <div class="msec-title">Observaciones</div>
+        <div class="modal-note">${esc(s.observaciones || s.notas)}</div>
       </div>`
           : ""
       }
