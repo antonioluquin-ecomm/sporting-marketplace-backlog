@@ -1381,14 +1381,22 @@
 
         <div class="sb-section">
           <div class="sb-label">Sitio objetivo</div>
-          <select class="sel" id="site-select" onchange="setSelectFilter('sitio_objetivo', this.value)">
+          <select
+            class="sel"
+            id="site-select"
+            onchange="setSelectFilter('sitio_objetivo', this.value)"
+          >
             <option value="todos">Todos</option>
           </select>
         </div>
 
         <div class="sb-section">
           <div class="sb-label">Plataforma</div>
-          <select class="sel" id="platform-select" onchange="setSelectFilter('plataforma', this.value)">
+          <select
+            class="sel"
+            id="platform-select"
+            onchange="setSelectFilter('plataforma', this.value)"
+          >
             <option value="todos">Todas</option>
           </select>
         </div>
@@ -1482,7 +1490,8 @@
             onclick="setFilter('estado', 'Identificado')"
             id="f-estado-Identificado"
           >
-            <span>Identificado</span><span class="fc" id="fe-identificado">0</span>
+            <span>Identificado</span
+            ><span class="fc" id="fe-identificado">0</span>
           </button>
           <button
             class="fb"
@@ -1553,7 +1562,9 @@
         </div>
 
         <div class="sb-note">
-          Datos desde Google Sheets · Actualizá para reflejar cambios. Podés sumar columnas nuevas, pero no modifiques seller_id ni los campos core.
+          Datos desde Google Sheets · Actualizá para reflejar cambios. Podés
+          sumar columnas nuevas, pero no modifiques seller_id ni los campos
+          core.
         </div>
       </aside>
 
@@ -1646,14 +1657,24 @@
       const CONFIG = {
         SELLERS_URL:
           "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwd-qIMhoH1poJpaTZqN-7O5IGAfPDTxslBAX8LCPogTkwheW2vWsq59JkvvYakM8ndCKgUQualQyi/pub?gid=899415596&single=true&output=csv",
-        STORAGE_KEY: "spt-backlog-v3",
+        // Publicar también la hoja relevamientos como CSV y pegar acá la URL.
+        // Si queda vacío, el backlog funciona solo con la hoja sellers.
+        RELEVAMIENTOS_URL:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwd-qIMhoH1poJpaTZqN-7O5IGAfPDTxslBAX8LCPogTkwheW2vWsq59JkvvYakM8ndCKgUQualQyi/pub?gid=233624428&single=true&output=csv",
+        STORAGE_KEY: "spt-backlog-v4",
       };
 
       /* ── HEADER ALIASES — mapea cualquier variante de nombre de columna al campo canónico ── */
       const ALIASES = {
         seller_id: ["seller_id", "id_unico_del_seller", "id_unico"],
         nombre: ["nombre", "seller_nombre", "nombre_marca", "nombre___marca"],
-        categoria: ["categoria", "categoría", "categoria_principal"],
+        categoria: [
+          "categoria",
+          "categoría",
+          "categoria_principal",
+          "categorias",
+          "categorías",
+        ],
         camino: ["camino", "camino_de_integracion", "camino_de_integración"],
         modelo_integracion: [
           "modelo_integracion",
@@ -1689,13 +1710,35 @@
         ],
         gmv_estimado: ["gmv_estimado", "gmv_estimado_ars_mes"],
         ticket_promedio: ["ticket_promedio", "ticket_promedio_ars"],
-        cuotas_max: ["cuotas_max", "cuotas_max_", "cuotas_máx"],
+        cuotas_max: ["cuotas_max", "cuotas_max_", "cuotas_máx", "cuotas"],
         devol_pct: ["devol_pct", "_devoluciones", "devoluciones"],
-        seller_url: ["seller_url", "url_seller", "sitio_seller", "web_seller", "sitio_web"],
-        plataforma: ["plataforma", "sistema", "sistema_plataforma", "tecnologia", "tecnología"],
-        sitio_objetivo: ["sitio_objetivo", "canal_objetivo", "sitio", "sitio_destino"],
+        seller_url: [
+          "seller_url",
+          "url_seller",
+          "sitio_seller",
+          "web_seller",
+          "sitio_web",
+          "web",
+        ],
+        plataforma: [
+          "plataforma",
+          "sistema",
+          "sistema_plataforma",
+          "tecnologia",
+          "tecnología",
+        ],
+        sitio_objetivo: [
+          "sitio_objetivo",
+          "canal_objetivo",
+          "sitio",
+          "sitio_destino",
+        ],
         logo_url: ["logo_url", "logo", "url_logo", "imagen_logo"],
-        observaciones: ["observaciones", "comentarios", "observaciones_detalle"],
+        observaciones: [
+          "observaciones",
+          "comentarios",
+          "observaciones_detalle",
+        ],
         activo: ["activo"],
         notas: ["notas", "notas_observaciones", "observaciones_resumen"],
       };
@@ -1816,6 +1859,45 @@
         return out;
       }
 
+      function loadOptionalDataset(url) {
+        if (!url || !String(url).trim()) return Promise.resolve([]);
+        return fetch(
+          url + (url.includes("?") ? "&" : "?") + "_ts=" + Date.now(),
+          { cache: "no-store" },
+        )
+          .then((res) => {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.text();
+          })
+          .then((text) => transform(parseCSV(text)))
+          .catch((err) => {
+            console.warn("No se pudo cargar relevamientos:", err);
+            return [];
+          });
+      }
+
+      function mergeRelevamiento(s, rel) {
+        if (!rel) return s;
+        const merged = { ...s, _relevamiento: rel };
+        const fromRel = [
+          "contacto_nombre",
+          "contacto_email",
+          "contacto_tel",
+          "gmv_estimado",
+          "ticket_promedio",
+          "cuotas_max",
+          "devol_pct",
+          "seller_url",
+          "plataforma",
+        ];
+        fromRel.forEach((key) => {
+          if (!merged[key] && rel[key]) merged[key] = rel[key];
+        });
+        if ((!merged.categoria || merged.categoria === "—") && rel.categoria)
+          merged.categoria = rel.categoria;
+        return normalize(merged);
+      }
+
       function normalize(o) {
         const v = { ...o };
         v.nombre = v.nombre || "—";
@@ -1890,11 +1972,20 @@
         setStatus("load", manual ? "Actualizando…" : "Cargando…");
         try {
           const url = CONFIG.SELLERS_URL + "&_ts=" + Date.now();
-          const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          const text = await res.text();
-          ALL = transform(parseCSV(text)).filter((s) => s.activo);
-          setStatus("live", `Google Sheets · ${ALL.length} sellers`);
+          const [sellerRes, relevamientos] = await Promise.all([
+            fetch(url, { cache: "no-store" }),
+            loadOptionalDataset(CONFIG.RELEVAMIENTOS_URL),
+          ]);
+          if (!sellerRes.ok) throw new Error("HTTP " + sellerRes.status);
+          const sellersText = await sellerRes.text();
+          const relMap = new Map(relevamientos.map((r) => [r.seller_id, r]));
+          ALL = transform(parseCSV(sellersText))
+            .map((s) => mergeRelevamiento(s, relMap.get(s.seller_id)))
+            .filter((s) => s.activo);
+          setStatus(
+            "live",
+            `Google Sheets · ${ALL.length} sellers${CONFIG.RELEVAMIENTOS_URL ? " · relevamientos" : ""}`,
+          );
           const now = new Date();
           $("last-update").textContent = now.toLocaleString("es-AR", {
             hour: "2-digit",
@@ -1914,7 +2005,7 @@
           <strong>Detalle:</strong> ${esc(e.message)}<br><br>
           Tip: en Google Sheets → Archivo → Compartir → Publicar en la web → hoja "sellers" → CSV.
         </div>
-        <div class="error-url">${esc(CONFIG.SELLERS_URL)}</div>
+        <div class="error-url">${esc(CONFIG.SELLERS_URL)}${CONFIG.RELEVAMIENTOS_URL ? "<br>" + esc(CONFIG.RELEVAMIENTOS_URL) : ""}</div>
       </div>`;
         } finally {
           loading = false;
@@ -1970,7 +2061,14 @@
 
       function applyFilters() {
         const search = $("search-input").value.trim().toLowerCase();
-        const { camino, prioridad, estado, alerta, sitio_objetivo, plataforma } = activeFilters;
+        const {
+          camino,
+          prioridad,
+          estado,
+          alerta,
+          sitio_objetivo,
+          plataforma,
+        } = activeFilters;
 
         let filtered = ALL.filter((s) => {
           if (camino !== "todos" && s.camino !== camino) return false;
@@ -1984,8 +2082,13 @@
           if (alerta === "bloqueado" && !s.bloqueo_flag) return false;
           if (alerta === "riesgo_alto" && norm(s.riesgo_nivel) !== "alto")
             return false;
-          if (sitio_objetivo !== "todos" && norm(s.sitio_objetivo) !== norm(sitio_objetivo)) return false;
-          if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma)) return false;
+          if (
+            sitio_objetivo !== "todos" &&
+            norm(s.sitio_objetivo) !== norm(sitio_objetivo)
+          )
+            return false;
+          if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma))
+            return false;
           if (search) {
             const hay = [
               s.seller_id,
@@ -2233,13 +2336,15 @@
         return "p-low";
       }
       function sellerInitials(name) {
-        return String(name || "?")
-          .split(/\s+/)
-          .filter(Boolean)
-          .slice(0, 2)
-          .map((p) => p[0])
-          .join("")
-          .toUpperCase() || "?";
+        return (
+          String(name || "?")
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((p) => p[0])
+            .join("")
+            .toUpperCase() || "?"
+        );
       }
 
       function ownerInitials(name) {
@@ -2256,7 +2361,9 @@
         const key = id === "site-select" ? "sitio_objetivo" : "plataforma";
         const current = activeFilters[key] || "todos";
         const html = [`<option value="todos">${placeholder}</option>`]
-          .concat(values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`))
+          .concat(
+            values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`),
+          )
           .join("");
         if (el.innerHTML !== html) el.innerHTML = html;
         el.value = values.includes(current) ? current : "todos";
@@ -2265,8 +2372,12 @@
 
       function populateDynamicFilters() {
         const clean = (v) => String(v || "").trim();
-        const siteValues = [...new Set(ALL.map((s) => clean(s.sitio_objetivo)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
-        const platformValues = [...new Set(ALL.map((s) => clean(s.plataforma)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+        const siteValues = [
+          ...new Set(ALL.map((s) => clean(s.sitio_objetivo)).filter(Boolean)),
+        ].sort((a, b) => a.localeCompare(b, "es"));
+        const platformValues = [
+          ...new Set(ALL.map((s) => clean(s.plataforma)).filter(Boolean)),
+        ].sort((a, b) => a.localeCompare(b, "es"));
         populateSelect("site-select", siteValues, "Todos");
         populateSelect("platform-select", platformValues, "Todas");
       }
@@ -2313,7 +2424,7 @@
       <div class="seller-meta">
         <div class="scard-name">${esc(s.nombre)}</div>
         <div class="scard-cat">${esc(s.categoria)}</div>
-        ${(s.plataforma || s.sitio_objetivo || s.seller_url) ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}${s.seller_url ? `<span class="mini-chip">${linkHTML(s.seller_url, "Ver sitio")}</span>` : ""}</div>` : ""}
+        ${s.plataforma || s.sitio_objetivo || s.seller_url ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}${s.seller_url ? `<span class="mini-chip">${linkHTML(s.seller_url, "Ver sitio")}</span>` : ""}</div>` : ""}
       </div>
     </div>
     <div class="scard-tags">
@@ -2457,7 +2568,10 @@
         const logoFallback = $("m-logo-fallback");
         const logoUrl = safeUrl(s.logo_url);
         logoFallback.textContent = sellerInitials(s.nombre);
-        logo.onerror = () => { logo.classList.add("hidden"); logoFallback.classList.remove("hidden"); };
+        logo.onerror = () => {
+          logo.classList.add("hidden");
+          logoFallback.classList.remove("hidden");
+        };
         if (logoUrl) {
           logo.src = logoUrl;
           logo.alt = `Logo ${s.nombre || "seller"}`;
