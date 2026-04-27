@@ -670,6 +670,22 @@
       .seller-logo.hidden {
         display: none;
       }
+      .seller-logo-fallback {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--g-dim);
+        border: 1px solid var(--g-brd);
+        color: var(--g);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.03em;
+        flex-shrink: 0;
+      }
       .seller-meta {
         min-width: 0;
       }
@@ -707,6 +723,25 @@
         flex-shrink: 0;
       }
       .m-logo.hidden {
+        display: none;
+      }
+      .m-logo-fallback {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: var(--g-dim);
+        border: 1px solid var(--g-brd);
+        color: var(--g);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.03em;
+        flex-shrink: 0;
+      }
+      .m-logo-fallback.hidden {
         display: none;
       }
       .link-out {
@@ -1345,6 +1380,20 @@
         </div>
 
         <div class="sb-section">
+          <div class="sb-label">Sitio objetivo</div>
+          <select class="sel" id="site-select" onchange="setSelectFilter('sitio_objetivo', this.value)">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Plataforma</div>
+          <select class="sel" id="platform-select" onchange="setSelectFilter('plataforma', this.value)">
+            <option value="todos">Todas</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
           <div class="sb-label">Camino</div>
           <button
             class="fb on"
@@ -1427,6 +1476,13 @@
             id="f-estado-todos"
           >
             <span>Todos</span><span class="fc" id="fe-todos">0</span>
+          </button>
+          <button
+            class="fb"
+            onclick="setFilter('estado', 'Identificado')"
+            id="f-estado-Identificado"
+          >
+            <span>Identificado</span><span class="fc" id="fe-identificado">0</span>
           </button>
           <button
             class="fb"
@@ -1570,6 +1626,7 @@
         <div class="modal-hd">
           <div class="m-head-main">
             <img class="m-logo hidden" id="m-logo" alt="" />
+            <div class="m-logo-fallback hidden" id="m-logo-fallback">—</div>
             <div>
               <div class="m-id" id="m-id">—</div>
               <div class="m-name" id="m-name">—</div>
@@ -1651,6 +1708,8 @@
         prioridad: "todos",
         estado: "todos",
         alerta: "todos",
+        sitio_objetivo: "todos",
+        plataforma: "todos",
       };
       let autoHandle = null;
       let loading = false;
@@ -1765,7 +1824,7 @@
         v.modelo_integracion = normInteg(
           v.modelo_integracion || v.integracion || "",
         );
-        v.estado_macro = deriveEstado(v.etapa_actual) || "Contactado";
+        v.estado_macro = deriveEstado(v.etapa_actual);
         v.prioridad = cap(v.prioridad || "Media");
         v.progreso_pct = Math.min(
           100,
@@ -1803,9 +1862,10 @@
         if (n.includes("acuerdo")) return "Acuerdo";
         if (n.includes("onboarding")) return "Onboarding";
         if (n.includes("go_live") || n.includes("golive")) return "Go-Live";
+        if (n.includes("identificado")) return "Identificado";
         if (n.includes("contacto")) return "Contactado";
         if (n.includes("pendiente")) return "Pendiente readiness";
-        return "";
+        return "Identificado";
       }
       function cap(v) {
         const s = String(v || "").trim();
@@ -1874,6 +1934,12 @@
         applyFilters();
       }
 
+      function setSelectFilter(type, val) {
+        activeFilters[type] = val || "todos";
+        savePrefs();
+        applyFilters();
+      }
+
       function clearFilters() {
         $("search-input").value = "";
         $("sort-select").value = "pri_desc";
@@ -1882,7 +1948,11 @@
           prioridad: "todos",
           estado: "todos",
           alerta: "todos",
+          sitio_objetivo: "todos",
+          plataforma: "todos",
         };
+        if ($("site-select")) $("site-select").value = "todos";
+        if ($("platform-select")) $("platform-select").value = "todos";
         document
           .querySelectorAll(
             '[id^="f-camino-"],[id^="f-prioridad-"],[id^="f-estado-"],[id^="f-alerta-"]',
@@ -1900,7 +1970,7 @@
 
       function applyFilters() {
         const search = $("search-input").value.trim().toLowerCase();
-        const { camino, prioridad, estado, alerta } = activeFilters;
+        const { camino, prioridad, estado, alerta, sitio_objetivo, plataforma } = activeFilters;
 
         let filtered = ALL.filter((s) => {
           if (camino !== "todos" && s.camino !== camino) return false;
@@ -1914,6 +1984,8 @@
           if (alerta === "bloqueado" && !s.bloqueo_flag) return false;
           if (alerta === "riesgo_alto" && norm(s.riesgo_nivel) !== "alto")
             return false;
+          if (sitio_objetivo !== "todos" && norm(s.sitio_objetivo) !== norm(sitio_objetivo)) return false;
+          if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma)) return false;
           if (search) {
             const hay = [
               s.seller_id,
@@ -2023,7 +2095,13 @@
           by((s) => norm(s.prioridad) === "baja"),
         );
 
+        populateDynamicFilters();
+
         fc("fe-todos", ALL.length);
+        fc(
+          "fe-identificado",
+          by((s) => norm(s.estado_macro).includes("identificado")),
+        );
         fc(
           "fe-contactado",
           by((s) => norm(s.estado_macro).includes("contactado")),
@@ -2090,6 +2168,14 @@
           chips.push(
             `<span class="chip">Alerta: <strong>${esc(activeFilters.alerta.replace("_", " "))}</strong></span>`,
           );
+        if (activeFilters.sitio_objetivo !== "todos")
+          chips.push(
+            `<span class="chip">Sitio: <strong>${esc(activeFilters.sitio_objetivo)}</strong></span>`,
+          );
+        if (activeFilters.plataforma !== "todos")
+          chips.push(
+            `<span class="chip">Plataforma: <strong>${esc(activeFilters.plataforma)}</strong></span>`,
+          );
         if (chips.length) {
           chips.push(
             `<button class="btn-sm" onclick="clearFilters()">Limpiar</button>`,
@@ -2124,6 +2210,7 @@
       }
       function estadoClass(v) {
         const n = norm(v);
+        if (n.includes("identificado")) return "e-default";
         if (n.includes("contactado")) return "e-contactado";
         if (n.includes("relevamiento")) return "e-relevamiento";
         if (n.includes("propuesta")) return "e-propuesta";
@@ -2145,12 +2232,43 @@
         if (pct >= 30) return "p-mid";
         return "p-low";
       }
+      function sellerInitials(name) {
+        return String(name || "?")
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((p) => p[0])
+          .join("")
+          .toUpperCase() || "?";
+      }
+
       function ownerInitials(name) {
         if (!name) return "?";
         const parts = name.trim().split(/\s+/);
         return parts.length >= 2
           ? (parts[0][0] + parts[1][0]).toUpperCase()
           : parts[0].slice(0, 2).toUpperCase();
+      }
+
+      function populateSelect(id, values, placeholder) {
+        const el = $(id);
+        if (!el) return;
+        const key = id === "site-select" ? "sitio_objetivo" : "plataforma";
+        const current = activeFilters[key] || "todos";
+        const html = [`<option value="todos">${placeholder}</option>`]
+          .concat(values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`))
+          .join("");
+        if (el.innerHTML !== html) el.innerHTML = html;
+        el.value = values.includes(current) ? current : "todos";
+        if (!values.includes(current)) activeFilters[key] = "todos";
+      }
+
+      function populateDynamicFilters() {
+        const clean = (v) => String(v || "").trim();
+        const siteValues = [...new Set(ALL.map((s) => clean(s.sitio_objetivo)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+        const platformValues = [...new Set(ALL.map((s) => clean(s.plataforma)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+        populateSelect("site-select", siteValues, "Todos");
+        populateSelect("platform-select", platformValues, "Todas");
       }
 
       /* ── RENDER ── */
@@ -2191,11 +2309,11 @@
       </div>
     </div>
     <div class="scard-brand">
-      ${safeUrl(s.logo_url) ? `<img class="seller-logo" src="${esc(safeUrl(s.logo_url))}" alt="Logo ${esc(s.nombre)}" loading="lazy" onerror="this.classList.add('hidden')">` : ""}
+      ${safeUrl(s.logo_url) ? `<img class="seller-logo" src="${esc(safeUrl(s.logo_url))}" alt="Logo ${esc(s.nombre)}" loading="lazy" onerror="this.outerHTML='&lt;div class=&quot;seller-logo-fallback&quot;&gt;${esc(sellerInitials(s.nombre))}&lt;/div&gt;'">` : `<div class="seller-logo-fallback">${esc(sellerInitials(s.nombre))}</div>`}
       <div class="seller-meta">
         <div class="scard-name">${esc(s.nombre)}</div>
         <div class="scard-cat">${esc(s.categoria)}</div>
-        ${(s.plataforma || s.sitio_objetivo) ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}</div>` : ""}
+        ${(s.plataforma || s.sitio_objetivo || s.seller_url) ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}${s.seller_url ? `<span class="mini-chip">${linkHTML(s.seller_url, "Ver sitio")}</span>` : ""}</div>` : ""}
       </div>
     </div>
     <div class="scard-tags">
@@ -2336,14 +2454,19 @@
         $("m-name").textContent = s.nombre;
         $("m-cat").textContent = s.categoria || "—";
         const logo = $("m-logo");
+        const logoFallback = $("m-logo-fallback");
         const logoUrl = safeUrl(s.logo_url);
+        logoFallback.textContent = sellerInitials(s.nombre);
+        logo.onerror = () => { logo.classList.add("hidden"); logoFallback.classList.remove("hidden"); };
         if (logoUrl) {
           logo.src = logoUrl;
           logo.alt = `Logo ${s.nombre || "seller"}`;
           logo.classList.remove("hidden");
+          logoFallback.classList.add("hidden");
         } else {
           logo.removeAttribute("src");
           logo.classList.add("hidden");
+          logoFallback.classList.remove("hidden");
         }
 
         const row = (lbl, val) =>
