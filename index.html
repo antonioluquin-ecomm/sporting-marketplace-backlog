@@ -1941,6 +1941,9 @@
 
       /* ── UTILS ── */
       const $ = (id) => document.getElementById(id);
+      const setText = (id, value) => { const el = $(id); if (el) el.textContent = value; };
+      const setHTML = (id, value) => { const el = $(id); if (el) el.innerHTML = value; };
+      const hasEl = (id) => Boolean($(id));
       const esc = (s) =>
         String(s || "")
           .replaceAll("&", "&amp;")
@@ -2257,11 +2260,13 @@
       /* ── STATUS ── */
       function setStatus(type, txt) {
         const d = $("status-dot");
-        d.className = "dot";
-        if (type === "live") d.classList.add("live");
-        else if (type === "err") d.classList.add("err");
-        else d.classList.add("load");
-        $("status-txt").textContent = txt;
+        if (d) {
+          d.className = "dot";
+          if (type === "live") d.classList.add("live");
+          else if (type === "err") d.classList.add("err");
+          else d.classList.add("load");
+        }
+        setText("status-txt", txt);
       }
 
       /* ── LOAD ── */
@@ -2288,12 +2293,12 @@
             `Google Sheets · ${ALL.length} sellers · ${relevamientos.length} relevamientos`,
           );
           const now = new Date();
-          $("last-update").textContent = now.toLocaleString("es-AR", {
+          setText("last-update", now.toLocaleString("es-AR", {
             hour: "2-digit",
             minute: "2-digit",
             day: "2-digit",
             month: "2-digit",
-          });
+          }));
           applyFilters();
         } catch (e) {
           console.error(e);
@@ -2470,14 +2475,14 @@
       /* ── COUNTS ── */
       function updateCounts(filtered) {
         const by = (fn) => ALL.filter(fn).length;
-        $("kpi-total").textContent = ALL.length;
+        setText("kpi-total", ALL.length);
         const relevados = by((s) => Boolean(s._rel_insights && s._rel_insights.has));
         const conAlertas = by((s) => s.bloqueo_flag || norm(s.riesgo_nivel) === "alto" || (s._rel_insights && s._rel_insights.alerts.length));
-        $("kpi-alertas").textContent = conAlertas;
-        $("kpi-relevados").textContent = relevados;
-        $("kpi-relevados-s").textContent = ALL.length ? Math.round((relevados / ALL.length) * 100) + "% del pipeline" : "Con formulario";
-        $("kpi-c2").textContent = by((s) => s.camino === "integracion_vtex");
-        $("kpi-c3").textContent = by((s) => s.camino === "seller_center");
+        setText("kpi-alertas", conAlertas);
+        setText("kpi-relevados", relevados);
+        setText("kpi-relevados-s", ALL.length ? Math.round((relevados / ALL.length) * 100) + "% del pipeline" : "Con formulario");
+        setText("kpi-c2", by((s) => s.camino === "integracion_vtex"));
+        setText("kpi-c3", by((s) => s.camino === "seller_center"));
 
         const fc = (id, n) => {
           const e = $(id);
@@ -2559,10 +2564,10 @@
         fc("fr-parcial", by((s) => s._rel_insights && s._rel_insights.status_key === "parcial"));
         fc("fr-pendiente", by((s) => !s._rel_insights || s._rel_insights.status_key === "pendiente"));
 
-        $("results-info").textContent =
+        setText("results-info",
           filtered.length === ALL.length
             ? `${ALL.length} sellers`
-            : `${filtered.length} de ${ALL.length} sellers`;
+            : `${filtered.length} de ${ALL.length} sellers`);
       }
 
       /* ── CHIPS ── */
