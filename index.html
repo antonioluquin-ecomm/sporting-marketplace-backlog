@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backlog de Sellers — Sporting Marketplace</title>
+    <title>Backlog de Sellers — Sporting Marketplace PRO</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1941,8 +1941,14 @@
 
       /* ── UTILS ── */
       const $ = (id) => document.getElementById(id);
-      const setText = (id, value) => { const el = $(id); if (el) el.textContent = value; };
-      const setHTML = (id, value) => { const el = $(id); if (el) el.innerHTML = value; };
+      const setText = (id, value) => { const el = $(id); if (el) el.textContent = value == null ? "" : String(value); };
+      const setHTML = (id, value) => { const el = $(id); if (el) el.innerHTML = value == null ? "" : String(value); };
+      const setValue = (id, value) => { const el = $(id); if (el) el.value = value == null ? "" : String(value); };
+      const setChecked = (id, value) => { const el = $(id); if (el) el.checked = Boolean(value); };
+      const setDisabled = (id, value) => { const el = $(id); if (el) el.disabled = Boolean(value); };
+      const addClass = (id, cls) => { const el = $(id); if (el) el.classList.add(cls); };
+      const removeClass = (id, cls) => { const el = $(id); if (el) el.classList.remove(cls); };
+      const toggleClass = (id, cls, force) => { const el = $(id); if (el) el.classList.toggle(cls, force); };
       const hasEl = (id) => Boolean($(id));
       const esc = (s) =>
         String(s || "")
@@ -2273,7 +2279,7 @@
       async function loadData(manual = false) {
         if (loading) return;
         loading = true;
-        $("btn-refresh").disabled = true;
+        setDisabled("btn-refresh", true);
         setStatus("load", manual ? "Actualizando…" : "Cargando…");
         try {
           const url = CONFIG.SELLERS_URL + "&_ts=" + Date.now();
@@ -2303,7 +2309,7 @@
         } catch (e) {
           console.error(e);
           setStatus("err", "Error al cargar datos");
-          $("content-area").innerHTML = `
+          setHTML("content-area", `
       <div class="error-box">
         <div class="error-title">No se pudieron cargar los datos</div>
         <div class="error-body">
@@ -2312,10 +2318,10 @@
           Tip: en Google Sheets → Archivo → Compartir → Publicar en la web → hoja "sellers" → CSV.
         </div>
         <div class="error-url">${esc(CONFIG.SELLERS_URL)}${CONFIG.RELEVAMIENTOS_URL ? "<br>" + esc(CONFIG.RELEVAMIENTOS_URL) : ""}</div>
-      </div>`;
+      </div>`);
         } finally {
           loading = false;
-          $("btn-refresh").disabled = false;
+          setDisabled("btn-refresh", false);
         }
       }
 
@@ -2338,8 +2344,8 @@
       }
 
       function clearFilters() {
-        $("search-input").value = "";
-        $("sort-select").value = "pri_desc";
+        setValue("search-input", "");
+        setValue("sort-select", "pri_desc");
         activeFilters = {
           camino: "todos",
           prioridad: "todos",
@@ -2349,8 +2355,8 @@
           plataforma: "todos",
           relevamiento: "todos",
         };
-        if ($("site-select")) $("site-select").value = "todos";
-        if ($("platform-select")) $("platform-select").value = "todos";
+        setValue("site-select", "todos");
+        setValue("platform-select", "todos");
         document
           .querySelectorAll(
             '[id^="f-camino-"],[id^="f-prioridad-"],[id^="f-estado-"],[id^="f-alerta-"],[id^="f-relevamiento-"]'
@@ -2367,7 +2373,7 @@
       }
 
       function applyFilters() {
-        const search = $("search-input").value.trim().toLowerCase();
+        const search = (($("search-input") && $("search-input").value) || "").trim().toLowerCase();
         const {
           camino,
           prioridad,
@@ -2426,7 +2432,7 @@
           return true;
         });
 
-        filtered = sortItems(filtered, $("sort-select").value);
+        filtered = sortItems(filtered, (($("sort-select") && $("sort-select").value) || "pri_desc"));
         updateCounts(filtered);
         renderChips(search);
         renderContent(filtered);
@@ -2610,11 +2616,11 @@
           chips.push(
             `<button class="btn-sm" onclick="clearFilters()">Limpiar</button>`,
           );
-          box.innerHTML = chips.join("");
-          box.classList.remove("hidden");
+          if (box) box.innerHTML = chips.join("");
+          if (box) box.classList.remove("hidden");
         } else {
-          box.innerHTML = "";
-          box.classList.add("hidden");
+          if (box) box.innerHTML = "";
+          if (box) box.classList.add("hidden");
         }
       }
 
@@ -2712,8 +2718,8 @@
       /* ── RENDER ── */
       function renderContent(filtered) {
         if (!ALL.length) {
-          $("content-area").innerHTML =
-            `<div class="empty"><div class="empty-icon">○</div><span>No hay sellers para mostrar.</span></div>`;
+          setHTML("content-area",
+            `<div class="empty"><div class="empty-icon">○</div><span>No hay sellers para mostrar.</span></div>`);
           return;
         }
         if (currentView === "kanban") renderKanban(filtered);
@@ -2815,7 +2821,7 @@
             cls: "c3",
           },
         ];
-        $("content-area").innerHTML = `
+        setHTML("content-area", `
     <div class="kanban">
       ${groups
         .map((g) => {
@@ -2836,16 +2842,16 @@
           </section>`;
         })
         .join("")}
-    </div>`;
+    </div>`);
       }
 
       function renderTable(filtered) {
         if (!filtered.length) {
-          $("content-area").innerHTML =
-            `<div class="empty"><div class="empty-icon">○</div><span>Sin resultados</span></div>`;
+          setHTML("content-area",
+            `<div class="empty"><div class="empty-icon">○</div><span>Sin resultados</span></div>`);
           return;
         }
-        $("content-area").innerHTML = `
+        setHTML("content-area", `
     <div class="table-wrap">
       <div class="table-shell">
         <table>
@@ -2894,33 +2900,35 @@
           </tbody>
         </table>
       </div>
-    </div>`;
+    </div>`);
       }
 
       /* ── MODAL ── */
       function openModal(id) {
         const s = ALL.find((x) => x.seller_id === id);
         if (!s) return;
-        $("m-id").textContent = s.seller_id;
-        $("m-name").textContent = s.nombre;
-        $("m-cat").textContent = s.categoria || "—";
+        setText("m-id", s.seller_id);
+        setText("m-name", s.nombre);
+        setText("m-cat", s.categoria || "—");
         const logo = $("m-logo");
         const logoFallback = $("m-logo-fallback");
         const logoUrl = safeUrl(s.logo_url);
-        logoFallback.textContent = sellerInitials(s.nombre);
-        logo.onerror = () => {
-          logo.classList.add("hidden");
-          logoFallback.classList.remove("hidden");
-        };
-        if (logoUrl) {
-          logo.src = logoUrl;
-          logo.alt = `Logo ${s.nombre || "seller"}`;
-          logo.classList.remove("hidden");
-          logoFallback.classList.add("hidden");
-        } else {
-          logo.removeAttribute("src");
-          logo.classList.add("hidden");
-          logoFallback.classList.remove("hidden");
+        if (logoFallback) logoFallback.textContent = sellerInitials(s.nombre);
+        if (logo) {
+          logo.onerror = () => {
+            logo.classList.add("hidden");
+            if (logoFallback) logoFallback.classList.remove("hidden");
+          };
+          if (logoUrl) {
+            logo.src = logoUrl;
+            logo.alt = `Logo ${s.nombre || "seller"}`;
+            logo.classList.remove("hidden");
+            if (logoFallback) logoFallback.classList.add("hidden");
+          } else {
+            logo.removeAttribute("src");
+            logo.classList.add("hidden");
+            if (logoFallback) logoFallback.classList.remove("hidden");
+          }
         }
 
         const row = (lbl, val) =>
@@ -2951,7 +2959,7 @@
       </div>
     </div>`;
 
-        $("modal-body").innerHTML = `
+        setHTML("modal-body", `
     ${blockHTML}
     ${progHTML}
     <div class="modal-grid">
@@ -3046,21 +3054,21 @@
       </div>`
           : ""
       }
-    </div>`;
+    </div>`);
 
-        $("modal-overlay").classList.add("open");
+        addClass("modal-overlay", "open");
       }
 
       function closeModal(e) {
         if (!e || e.target === $("modal-overlay"))
-          $("modal-overlay").classList.remove("open");
+          removeClass("modal-overlay", "open");
       }
 
       /* ── VIEW ── */
       function setView(v) {
         currentView = v;
-        $("btn-kanban").classList.toggle("on", v === "kanban");
-        $("btn-tabla").classList.toggle("on", v === "tabla");
+        toggleClass("btn-kanban", "on", v === "kanban");
+        toggleClass("btn-tabla", "on", v === "tabla");
         savePrefs();
         applyFilters();
       }
@@ -3073,10 +3081,10 @@
             JSON.stringify({
               currentView,
               activeFilters,
-              search: $("search-input").value,
-              sort: $("sort-select").value,
-              autoRefresh: $("auto-refresh").checked,
-              refreshInterval: $("refresh-interval").value,
+              search: (($("search-input") && $("search-input").value) || ""),
+              sort: (($("sort-select") && $("sort-select").value) || "pri_desc"),
+              autoRefresh: Boolean($("auto-refresh") && $("auto-refresh").checked),
+              refreshInterval: (($("refresh-interval") && $("refresh-interval").value) || "60000"),
             }),
           );
         } catch (e) {}
@@ -3090,11 +3098,11 @@
           if (p.currentView) currentView = p.currentView;
           if (p.activeFilters)
             activeFilters = { ...activeFilters, ...p.activeFilters };
-          if (p.search) $("search-input").value = p.search;
-          if (p.sort) $("sort-select").value = p.sort;
+          if (p.search) setValue("search-input", p.search);
+          if (p.sort) setValue("sort-select", p.sort);
           if (p.refreshInterval)
-            $("refresh-interval").value = p.refreshInterval;
-          $("auto-refresh").checked = Boolean(p.autoRefresh);
+            setValue("refresh-interval", p.refreshInterval);
+          setChecked("auto-refresh", Boolean(p.autoRefresh));
         } catch (e) {}
       }
 
@@ -3107,25 +3115,25 @@
           const btn = $(`f-${type}-${val}`);
           if (btn) btn.classList.add("on");
         });
-        $("btn-kanban").classList.toggle("on", currentView === "kanban");
-        $("btn-tabla").classList.toggle("on", currentView === "tabla");
+        toggleClass("btn-kanban", "on", currentView === "kanban");
+        toggleClass("btn-tabla", "on", currentView === "tabla");
       }
 
       function updateAutoRefresh() {
         if (autoHandle) clearInterval(autoHandle);
-        if ($("auto-refresh").checked) {
-          const ms = Number($("refresh-interval").value || 60000);
+        if ($("auto-refresh") && $("auto-refresh").checked) {
+          const ms = Number((($("refresh-interval") && $("refresh-interval").value) || 60000));
           autoHandle = setInterval(() => loadData(false), ms);
         }
         savePrefs();
       }
 
-      $("auto-refresh").addEventListener("change", updateAutoRefresh);
+      if ($("auto-refresh")) $("auto-refresh").addEventListener("change", updateAutoRefresh);
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeModal();
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
           e.preventDefault();
-          $("search-input").focus();
+          if ($("search-input")) $("search-input").focus();
         }
       });
 
