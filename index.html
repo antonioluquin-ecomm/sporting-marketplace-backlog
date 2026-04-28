@@ -1218,6 +1218,153 @@
         border: 1px solid var(--bdr);
       }
 
+
+
+      /* ── RELEVAMIENTO / READINESS ───────────────────────── */
+      .rel-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        padding: 2px 7px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+      }
+      .rel-ok { background: var(--g-dim); color: var(--g); border-color: var(--g-brd); }
+      .rel-mid { background: var(--warn-dim); color: var(--warn); border-color: rgba(255, 183, 77, 0.24); }
+      .rel-bad { background: var(--danger-dim); color: #f29a9a; border-color: var(--danger-brd); }
+      .rel-none { background: rgba(255,255,255,.05); color: var(--t3); border-color: var(--bdr); }
+      .readiness-box {
+        margin-bottom: 9px;
+        padding: 9px 10px;
+        border-radius: 7px;
+        background: rgba(255,255,255,.025);
+        border: 1px solid var(--bdr-l);
+      }
+      .readiness-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+      }
+      .readiness-label {
+        font-size: 9px;
+        color: var(--t3);
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        font-weight: 800;
+      }
+      .readiness-value {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--t1);
+      }
+      .readiness-track {
+        height: 5px;
+        background: rgba(255,255,255,.07);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .readiness-fill {
+        height: 100%;
+        border-radius: 999px;
+      }
+      .readiness-fill.high { background: var(--g); }
+      .readiness-fill.mid { background: var(--warn); }
+      .readiness-fill.low { background: var(--danger); }
+      .alert-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 7px;
+      }
+      .alert-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #ffcc80;
+        background: rgba(255, 152, 0, 0.10);
+        border: 1px solid rgba(255, 152, 0, 0.20);
+        border-radius: 999px;
+        padding: 2px 7px;
+      }
+      .alert-chip.danger {
+        color: #f29a9a;
+        background: var(--danger-dim);
+        border-color: var(--danger-brd);
+      }
+      .eval-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .eval-card {
+        background: rgba(255,255,255,.025);
+        border: 1px solid var(--bdr-l);
+        border-radius: 7px;
+        padding: 10px;
+      }
+      .eval-title {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--t3);
+        margin-bottom: 5px;
+      }
+      .eval-main {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--t1);
+        line-height: 1.35;
+      }
+      .eval-sub {
+        font-size: 11px;
+        color: var(--t3);
+        line-height: 1.4;
+        margin-top: 3px;
+      }
+      .rel-kpi-inline {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin-bottom: 12px;
+      }
+      .rel-mini-kpi {
+        background: rgba(255,255,255,.025);
+        border: 1px solid var(--bdr-l);
+        border-radius: 7px;
+        padding: 9px;
+        text-align: center;
+      }
+      .rel-mini-kpi strong {
+        display: block;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--g);
+        line-height: 1;
+      }
+      .rel-mini-kpi span {
+        display: block;
+        margin-top: 3px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--t3);
+      }
+      @media (max-width: 560px) {
+        .eval-grid, .rel-kpi-inline { grid-template-columns: 1fr; }
+      }
+
       /* ── STATES ─────────────────────────────────────────── */
       .loader,
       .empty,
@@ -1556,6 +1703,40 @@
         <div class="sb-div"></div>
 
         <div class="sb-section">
+          <div class="sb-label">Relevamiento</div>
+          <button
+            class="fb on"
+            onclick="setFilter('relevamiento', 'todos')"
+            id="f-relevamiento-todos"
+          >
+            <span>Todos</span><span class="fc" id="fr-todos">0</span>
+          </button>
+          <button
+            class="fb"
+            onclick="setFilter('relevamiento', 'completo')"
+            id="f-relevamiento-completo"
+          >
+            <span style="color: var(--g)">Completo</span><span class="fc" id="fr-completo">0</span>
+          </button>
+          <button
+            class="fb"
+            onclick="setFilter('relevamiento', 'parcial')"
+            id="f-relevamiento-parcial"
+          >
+            <span style="color: var(--warn)">Parcial</span><span class="fc" id="fr-parcial">0</span>
+          </button>
+          <button
+            class="fb"
+            onclick="setFilter('relevamiento', 'pendiente')"
+            id="f-relevamiento-pendiente"
+          >
+            <span style="color: var(--t3)">Pendiente</span><span class="fc" id="fr-pendiente">0</span>
+          </button>
+        </div>
+
+        <div class="sb-div"></div>
+
+        <div class="sb-section">
           <button class="btn-sm" style="width: 100%" onclick="clearFilters()">
             Limpiar filtros
           </button>
@@ -1578,14 +1759,14 @@
             <div class="kpi-s" id="kpi-total-s">Pipeline activo</div>
           </div>
           <div class="kpi rd">
-            <div class="kpi-l">Bloqueados</div>
-            <div class="kpi-n" id="kpi-bloq">—</div>
-            <div class="kpi-s">Requieren atención</div>
+            <div class="kpi-l">Alertas</div>
+            <div class="kpi-n" id="kpi-alertas">—</div>
+            <div class="kpi-s">Bloqueos + riesgos</div>
           </div>
           <div class="kpi c1">
-            <div class="kpi-l">Rápida activación</div>
-            <div class="kpi-n" id="kpi-c1">—</div>
-            <div class="kpi-s">Q2 · Mayo / Junio</div>
+            <div class="kpi-l">Relevados</div>
+            <div class="kpi-n" id="kpi-relevados">—</div>
+            <div class="kpi-s" id="kpi-relevados-s">Con formulario</div>
           </div>
           <div class="kpi c2">
             <div class="kpi-l">Integración VTEX</div>
@@ -1753,6 +1934,7 @@
         alerta: "todos",
         sitio_objetivo: "todos",
         plataforma: "todos",
+        relevamiento: "todos",
       };
       let autoHandle = null;
       let loading = false;
@@ -1876,25 +2058,140 @@
           });
       }
 
+      function pctNumber(v) {
+        const n = parseFloat(String(v || "").replace("%", "").replace(",", "."));
+        return isNaN(n) ? 0 : Math.max(0, Math.min(100, Math.round(n)));
+      }
+
+      function isYes(v) {
+        const n = norm(v);
+        return n === "si" || n.includes("si_") || n.includes("si_") || n.includes("automatic") || n.includes("todos") || n.includes("complet");
+      }
+      function isNo(v) {
+        const n = norm(v);
+        return n === "no" || n.includes("no_") || n.includes("manual") || n.includes("no_tengo");
+      }
+      function isPartial(v) {
+        const n = norm(v);
+        return n.includes("parcial") || n.includes("a_definir") || n.includes("algunas") || n.includes("segun");
+      }
+
+      function inferIntegrationModel(rel) {
+        const method = norm(rel.metodo_integracion || "");
+        const platform = norm(rel.plataforma || "");
+        const api = norm(rel.api || "");
+        const catalog = norm(rel.gestion_catalogo || "");
+        const stock = norm(rel.gestion_stock || "");
+        if (method.includes("vtex") || platform.includes("vtex")) return "VTEX → VTEX";
+        if (method.includes("seller_center")) return "Seller Center";
+        if (method.includes("api") || api === "si" || api.includes("parcial")) return "API / Seller Center";
+        if (method.includes("excel") || catalog.includes("excel") || stock.includes("excel")) return "Excel / carga inicial";
+        return "A definir";
+      }
+
+      function readinessClass(score) {
+        if (score >= 75) return "high";
+        if (score >= 50) return "mid";
+        return "low";
+      }
+
+      function relBadgeClass(ins) {
+        if (!ins || !ins.has) return "rel-none";
+        if (ins.status_key === "completo") return "rel-ok";
+        if (ins.status_key === "parcial") return "rel-mid";
+        return "rel-bad";
+      }
+
+      function createRelInsights(rel) {
+        if (!rel) {
+          return { has:false, status:"Pendiente", status_key:"pendiente", completitud:0, score:0, score_label:"Sin relevamiento", model:"A definir", alerts:[], strengths:[], limitaciones:"" };
+        }
+        const completitud = pctNumber(rel.completitud);
+        const rawStatus = rel.estado_relevamiento || (completitud >= 80 ? "Completo" : completitud >= 50 ? "Parcial" : "Incompleto");
+        const statusKey = norm(rawStatus).includes("complet") ? "completo" : norm(rawStatus).includes("parcial") ? "parcial" : "pendiente";
+        const model = inferIntegrationModel(rel);
+        const alerts = [];
+        const strengths = [];
+        const addAlert = (txt, sev="warn") => alerts.push({ txt, sev });
+        const addStrength = (txt) => strengths.push(txt);
+
+        if (norm(rel.plataforma).includes("vtex")) addStrength("Opera en VTEX");
+        if (isYes(rel.api) || isPartial(rel.api)) addStrength("Cuenta con API o API parcial");
+        if (isNo(rel.api)) addAlert("Sin API disponible");
+        if (isYes(rel.recibe_pedidos_ext)) addStrength("Puede recibir pedidos externos");
+        if (isNo(rel.recibe_pedidos_ext)) addAlert("No recibe pedidos externos");
+        if (isYes(rel.informa_tracking) || isYes(rel.tracking)) addStrength("Informa tracking");
+        if (isNo(rel.informa_tracking) || isNo(rel.tracking)) addAlert("Tracking no disponible");
+
+        if (norm(rel.stock_tipo).includes("compartido")) addAlert("Stock compartido");
+        if (isNo(rel.stock_exclusivo_mkt)) addAlert("Sin stock exclusivo para Marketplace");
+        if (isYes(rel.stock_exclusivo_mkt)) addStrength("Puede asignar stock exclusivo");
+        if (norm(rel.frec_stock).includes("tiempo_real") || norm(rel.frec_stock).includes("hora")) addStrength("Stock con buena frecuencia");
+
+        if (norm(rel.entrega_pais).includes("todo")) addStrength("Cobertura nacional");
+        if (isNo(rel.entrega_pais) || norm(rel.entrega_pais).includes("parcial")) addAlert("Cobertura logística limitada");
+        if (norm(rel.tiempo_despacho).includes("mismo") || norm(rel.tiempo_despacho).includes("24")) addStrength("Despacho rápido");
+        if (isNo(rel.cumple_sla_despacho) || isPartial(rel.cumple_sla_despacho)) addAlert("SLA de despacho a validar");
+
+        if (isNo(rel.acepta_devol)) addAlert("No acepta devoluciones", "danger");
+        if (norm(rel.log_devol).includes("no_tengo")) addAlert("Sin logística inversa", "danger");
+        if (isYes(rel.emite_factura)) addStrength("Emite factura electrónica");
+        if (norm(rel.factura_auto).includes("manual") || isNo(rel.factura_auto)) addAlert("Facturación manual");
+        if (norm(rel.productos_en_sporting).includes("si") || norm(rel.productos_en_sporting).includes("algunos")) addAlert("Revisar duplicados de catálogo");
+        if (rel.limitaciones_actuales) addAlert("Limitaciones declaradas");
+
+        let score = 0;
+        score += norm(rel.plataforma).includes("vtex") ? 18 : rel.plataforma ? 8 : 0;
+        score += isYes(rel.api) ? 16 : isPartial(rel.api) ? 8 : 0;
+        score += isYes(rel.recibe_pedidos_ext) ? 8 : isPartial(rel.recibe_pedidos_ext) ? 4 : 0;
+        score += isYes(rel.informa_estados) ? 6 : isPartial(rel.informa_estados) ? 3 : 0;
+        score += isYes(rel.informa_tracking) || isYes(rel.tracking) ? 6 : 0;
+        score += isYes(rel.info_prod_completa) || norm(rel.info_prod_completa).includes("todos") ? 8 : isPartial(rel.info_prod_completa) ? 4 : 0;
+        score += isYes(rel.imagenes) || norm(rel.imagenes).includes("todos") ? 6 : isPartial(rel.imagenes) ? 3 : 0;
+        score += isYes(rel.stock_exclusivo_mkt) ? 8 : isPartial(rel.stock_exclusivo_mkt) ? 4 : 0;
+        score += norm(rel.entrega_pais).includes("todo") ? 8 : isPartial(rel.entrega_pais) ? 4 : 0;
+        score += isYes(rel.emite_factura) ? 6 : 0;
+        score += completitud >= 80 ? 10 : completitud >= 50 ? 5 : 0;
+        score = Math.max(0, Math.min(100, Math.round(score)));
+        const scoreLabel = score >= 75 ? "Alto potencial" : score >= 50 ? "Viable con ajustes" : "Riesgo operativo";
+
+        return {
+          has: true,
+          status: rawStatus,
+          status_key: statusKey,
+          completitud,
+          score,
+          score_label: scoreLabel,
+          model,
+          alerts,
+          strengths,
+          limitaciones: rel.limitaciones_actuales || "",
+        };
+      }
+
       function mergeRelevamiento(s, rel) {
-        if (!rel) return s;
-        const merged = { ...s, _relevamiento: rel };
+        const insights = createRelInsights(rel);
+        if (!rel) return normalize({ ...s, _rel_insights: insights });
+        const merged = { ...s, _relevamiento: rel, _rel_insights: insights };
         const fromRel = [
           "contacto_nombre",
           "contacto_email",
           "contacto_tel",
           "gmv_estimado",
           "ticket_promedio",
-          "cuotas_max",
-          "devol_pct",
           "seller_url",
           "plataforma",
+          "metodo_integracion",
         ];
         fromRel.forEach((key) => {
           if (!merged[key] && rel[key]) merged[key] = rel[key];
         });
-        if ((!merged.categoria || merged.categoria === "—") && rel.categoria)
-          merged.categoria = rel.categoria;
+        if (!merged.modelo_integracion || merged.modelo_integracion === "—") merged.modelo_integracion = insights.model;
+        if ((!merged.categoria || merged.categoria === "—") && (rel.categorias || rel.categoria))
+          merged.categoria = rel.categorias || rel.categoria;
+        if (!merged.observaciones && (rel.limitaciones_actuales || rel.particularidades || rel.comentarios)) {
+          merged.observaciones = [rel.limitaciones_actuales, rel.particularidades, rel.comentarios].filter(Boolean).join(" · ");
+        }
         return normalize(merged);
       }
 
@@ -1978,13 +2275,14 @@
           ]);
           if (!sellerRes.ok) throw new Error("HTTP " + sellerRes.status);
           const sellersText = await sellerRes.text();
-          const relMap = new Map(relevamientos.map((r) => [r.seller_id, r]));
+          const relMap = new Map();
+          relevamientos.forEach((r) => relMap.set(r.seller_id, r));
           ALL = transform(parseCSV(sellersText))
             .map((s) => mergeRelevamiento(s, relMap.get(s.seller_id)))
             .filter((s) => s.activo);
           setStatus(
             "live",
-            `Google Sheets · ${ALL.length} sellers${CONFIG.RELEVAMIENTOS_URL ? " · relevamientos" : ""}`,
+            `Google Sheets · ${ALL.length} sellers · ${relevamientos.length} relevamientos`,
           );
           const now = new Date();
           $("last-update").textContent = now.toLocaleString("es-AR", {
@@ -2041,15 +2339,16 @@
           alerta: "todos",
           sitio_objetivo: "todos",
           plataforma: "todos",
+          relevamiento: "todos",
         };
         if ($("site-select")) $("site-select").value = "todos";
         if ($("platform-select")) $("platform-select").value = "todos";
         document
           .querySelectorAll(
-            '[id^="f-camino-"],[id^="f-prioridad-"],[id^="f-estado-"],[id^="f-alerta-"]',
+            '[id^="f-camino-"],[id^="f-prioridad-"],[id^="f-estado-"],[id^="f-alerta-"],[id^="f-relevamiento-"]'
           )
           .forEach((b) => b.classList.remove("on"));
-        ["f-camino-todos", "f-prioridad-todos", "f-estado-todos"].forEach(
+        ["f-camino-todos", "f-prioridad-todos", "f-estado-todos", "f-relevamiento-todos"].forEach(
           (id) => {
             const b = $(id);
             if (b) b.classList.add("on");
@@ -2068,6 +2367,7 @@
           alerta,
           sitio_objetivo,
           plataforma,
+          relevamiento,
         } = activeFilters;
 
         let filtered = ALL.filter((s) => {
@@ -2089,6 +2389,10 @@
             return false;
           if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma))
             return false;
+          if (relevamiento !== "todos") {
+            const status = s._rel_insights ? s._rel_insights.status_key : "pendiente";
+            if (status !== relevamiento) return false;
+          }
           if (search) {
             const hay = [
               s.seller_id,
@@ -2103,6 +2407,9 @@
               s.seller_url,
               s.observaciones,
               s.notas,
+              s._rel_insights ? s._rel_insights.model : "",
+              s._rel_insights ? s._rel_insights.alerts.join(" ") : "",
+              s._rel_insights ? s._rel_insights.limitaciones : "",
             ]
               .join(" ")
               .toLowerCase();
@@ -2161,7 +2468,11 @@
       function updateCounts(filtered) {
         const by = (fn) => ALL.filter(fn).length;
         $("kpi-total").textContent = ALL.length;
-        $("kpi-bloq").textContent = by((s) => s.bloqueo_flag);
+        const relevados = by((s) => Boolean(s._rel_insights && s._rel_insights.has));
+        const conAlertas = by((s) => s.bloqueo_flag || norm(s.riesgo_nivel) === "alto" || (s._rel_insights && s._rel_insights.alerts.length));
+        $("kpi-alertas").textContent = conAlertas;
+        $("kpi-relevados").textContent = relevados;
+        $("kpi-relevados-s").textContent = ALL.length ? Math.round((relevados / ALL.length) * 100) + "% del pipeline" : "Con formulario";
         $("kpi-c1").textContent = by((s) => s.camino === "rapida_activacion");
         $("kpi-c2").textContent = by((s) => s.camino === "integracion_vtex");
         $("kpi-c3").textContent = by((s) => s.camino === "seller_center");
@@ -2241,6 +2552,11 @@
           by((s) => norm(s.riesgo_nivel) === "alto"),
         );
 
+        fc("fr-todos", ALL.length);
+        fc("fr-completo", by((s) => s._rel_insights && s._rel_insights.status_key === "completo"));
+        fc("fr-parcial", by((s) => s._rel_insights && s._rel_insights.status_key === "parcial"));
+        fc("fr-pendiente", by((s) => !s._rel_insights || s._rel_insights.status_key === "pendiente"));
+
         $("results-info").textContent =
           filtered.length === ALL.length
             ? `${ALL.length} sellers`
@@ -2278,6 +2594,10 @@
         if (activeFilters.plataforma !== "todos")
           chips.push(
             `<span class="chip">Plataforma: <strong>${esc(activeFilters.plataforma)}</strong></span>`,
+          );
+        if (activeFilters.relevamiento !== "todos")
+          chips.push(
+            `<span class="chip">Relevamiento: <strong>${esc(activeFilters.relevamiento)}</strong></span>`,
           );
         if (chips.length) {
           chips.push(
@@ -2417,6 +2737,7 @@
         ${s.bloqueo_flag ? `<span class="badge-block">⚠ Bloqueado</span>` : ""}
         ${!s.bloqueo_flag && norm(s.riesgo_nivel) === "alto" ? `<span class="badge-risk">↑ Riesgo</span>` : ""}
         <span class="sc-pri ${priClass(s.prioridad)}">${esc(s.prioridad || "—")}</span>
+        <span class="rel-badge ${relBadgeClass(s._rel_insights)}">${s._rel_insights && s._rel_insights.has ? "Rel. " + s._rel_insights.completitud + "%" : "Sin relev."}</span>
       </div>
     </div>
     <div class="scard-brand">
@@ -2430,7 +2751,17 @@
     <div class="scard-tags">
       <span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span>
       <span class="tag ${estadoClass(s.estado_macro)}">${esc(estadoLabel)}</span>
+      ${s._rel_insights && s._rel_insights.has ? `<span class="tag integ-sc">${esc(s._rel_insights.model)}</span>` : ""}
     </div>
+    ${s._rel_insights && s._rel_insights.has ? `
+    <div class="readiness-box">
+      <div class="readiness-head">
+        <span class="readiness-label">Readiness seller</span>
+        <span class="readiness-value">${s._rel_insights.score}% · ${esc(s._rel_insights.score_label)}</span>
+      </div>
+      <div class="readiness-track"><div class="readiness-fill ${readinessClass(s._rel_insights.score)}" style="width:${s._rel_insights.score}%"></div></div>
+      ${s._rel_insights.alerts.length ? `<div class="alert-list">${s._rel_insights.alerts.slice(0,3).map(a => `<span class="alert-chip ${a.sev === "danger" ? "danger" : ""}">⚠ ${esc(a.txt)}</span>`).join("")}</div>` : ""}
+    </div>` : ""}
     ${
       showProg
         ? `
@@ -2515,7 +2846,7 @@
             <tr>
               <th class="td-blk"></th>
               <th>ID</th><th>Seller</th><th>Categoría</th><th>Plataforma</th><th>Sitio</th><th>Camino</th>
-              <th>Integración</th><th>Estado</th><th>Avance</th>
+              <th>Integración</th><th>Relevamiento</th><th>Readiness</th><th>Estado</th><th>Avance</th>
               <th>Próximo paso</th><th>Go-live</th><th>Prioridad</th>
             </tr>
           </thead>
@@ -2538,6 +2869,8 @@
                 <td>${esc(s.sitio_objetivo || "—")}</td>
                 <td><span class="tag ${cc}-tag">${esc(caminoLabel(s.camino))}</span></td>
                 <td><span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span></td>
+                <td><span class="rel-badge ${relBadgeClass(s._rel_insights)}">${s._rel_insights && s._rel_insights.has ? esc(s._rel_insights.status) + " · " + s._rel_insights.completitud + "%" : "Pendiente"}</span></td>
+                <td>${s._rel_insights && s._rel_insights.has ? `<strong style="color:var(--t1)">${s._rel_insights.score}%</strong><br><span style="font-size:10px;color:var(--t3)">${esc(s._rel_insights.model)}</span>` : "—"}</td>
                 <td><span class="tag ${estadoClass(s.estado_macro)}">${esc((s.estado_macro || "—").split("·")[0].trim())}</span></td>
                 <td class="td-prog">
                   <div class="td-prog-wrap">
@@ -2615,10 +2948,32 @@
     ${blockHTML}
     ${progHTML}
     <div class="modal-grid">
+    ${s._rel_insights && s._rel_insights.has ? `
+    <div class="msec full">
+      <div class="msec-title">Resumen del relevamiento</div>
+      <div class="rel-kpi-inline">
+        <div class="rel-mini-kpi"><strong>${s._rel_insights.completitud}%</strong><span>Completitud</span></div>
+        <div class="rel-mini-kpi"><strong>${s._rel_insights.score}%</strong><span>Readiness</span></div>
+        <div class="rel-mini-kpi"><strong>${esc(s._rel_insights.alerts.length)}</strong><span>Alertas</span></div>
+        <div class="rel-mini-kpi"><strong>${esc(s._rel_insights.status)}</strong><span>Estado</span></div>
+      </div>
+      <div class="eval-grid">
+        <div class="eval-card"><div class="eval-title">Modelo sugerido</div><div class="eval-main">${esc(s._rel_insights.model)}</div><div class="eval-sub">Inferido por plataforma, API, método declarado y capacidad operativa.</div></div>
+        <div class="eval-card"><div class="eval-title">Evaluación</div><div class="eval-main">${esc(s._rel_insights.score_label)}</div><div class="eval-sub">Score orientativo para priorizar análisis interno.</div></div>
+      </div>
+      ${s._rel_insights.strengths.length ? `<div class="modal-note" style="margin-bottom:8px"><strong style="color:var(--g)">Fortalezas:</strong> ${esc(s._rel_insights.strengths.join(" · "))}</div>` : ""}
+      ${s._rel_insights.alerts.length ? `<div class="modal-note" style="margin-bottom:8px"><strong style="color:var(--warn)">Alertas:</strong> ${esc(s._rel_insights.alerts.map(a => a.txt).join(" · "))}</div>` : ""}
+      ${s._rel_insights.limitaciones ? `<div class="modal-note"><strong style="color:var(--warn)">Limitaciones declaradas:</strong> ${esc(s._rel_insights.limitaciones)}</div>` : ""}
+    </div>` : `
+    <div class="msec full">
+      <div class="msec-title">Resumen del relevamiento</div>
+      <div class="modal-note">Este seller todavía no tiene un relevamiento asociado en la hoja <strong>relevamientos</strong>.</div>
+    </div>`}
       <div class="msec">
         <div class="msec-title">Pipeline</div>
         ${row("Camino", `<span class="tag ${caminoClass(s.camino)}-tag">${esc(caminoLabel(s.camino))}</span>`)}
         ${row("Integración", esc(s.modelo_integracion || "—"))}
+        ${s._rel_insights && s._rel_insights.has ? row("Modelo sugerido", esc(s._rel_insights.model)) : ""}
         ${row("Plataforma", esc(s.plataforma || "—"))}
         ${row("Sitio objetivo", esc(s.sitio_objetivo || "—"))}
         ${row("Sitio del seller", linkHTML(s.seller_url, s.seller_url || "Abrir sitio"))}
@@ -2658,6 +3013,20 @@
         ${row("Ticket promedio", s.ticket_promedio ? "$ " + Number(s.ticket_promedio.replace(/[^0-9.]/g, "")).toLocaleString("es-AR") : "")}
         ${row("Cuotas máx.", esc(s.cuotas_max || "—"))}
         ${row("% devoluciones", s.devol_pct ? esc(s.devol_pct) + "%" : "")}
+      </div>`
+          : ""
+      }
+      ${
+        s._relevamiento
+          ? `
+      <div class="msec full">
+        <div class="msec-title">Detalle operativo declarado</div>
+        <div class="eval-grid">
+          <div class="eval-card"><div class="eval-title">Tecnología</div><div class="eval-main">${esc(s._relevamiento.api || "API a definir")}</div><div class="eval-sub">Pedidos externos: ${esc(s._relevamiento.recibe_pedidos_ext || "—")} · Estados: ${esc(s._relevamiento.informa_estados || "—")}</div></div>
+          <div class="eval-card"><div class="eval-title">Catálogo</div><div class="eval-main">${esc(s._relevamiento.skus_estimados || "—")} SKUs</div><div class="eval-sub">Info: ${esc(s._relevamiento.info_prod_completa || "—")} · Imágenes: ${esc(s._relevamiento.imagenes || "—")}</div></div>
+          <div class="eval-card"><div class="eval-title">Stock</div><div class="eval-main">${esc(s._relevamiento.stock_tipo || "—")}</div><div class="eval-sub">Exclusivo MKT: ${esc(s._relevamiento.stock_exclusivo_mkt || "—")} · Frecuencia: ${esc(s._relevamiento.frec_stock || "—")}</div></div>
+          <div class="eval-card"><div class="eval-title">Logística</div><div class="eval-main">${esc(s._relevamiento.entrega_pais || "—")}</div><div class="eval-sub">Despacho: ${esc(s._relevamiento.tiempo_despacho || "—")} · Tracking: ${esc(s._relevamiento.tracking || s._relevamiento.informa_tracking || "—")}</div></div>
+        </div>
       </div>`
           : ""
       }
@@ -2723,7 +3092,7 @@
       }
 
       function applySavedFiltersToButtons() {
-        ["camino", "prioridad", "estado", "alerta"].forEach((type) => {
+        ["camino", "prioridad", "estado", "alerta", "relevamiento"].forEach((type) => {
           document
             .querySelectorAll(`[id^="f-${type}-"]`)
             .forEach((b) => b.classList.remove("on"));
