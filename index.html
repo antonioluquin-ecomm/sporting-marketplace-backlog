@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backlog de Sellers — Sporting Marketplace PRO</title>
+    <title>Backlog de Sellers — Sporting Marketplace PRO v12</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1833,6 +1833,7 @@
 
     <script>
       /* ═══════════════════════════════════════════════════════
+   V12 — versión robustecida contra IDs faltantes / HTML publicado incompleto
    CONFIG — pegar URLs publicadas como CSV desde Google Sheets
 ═══════════════════════════════════════════════════════ */
       const CONFIG = {
@@ -1941,6 +1942,10 @@
 
       /* ── UTILS ── */
       const $ = (id) => document.getElementById(id);
+      const $$ = (selector) => {
+        try { return Array.from(document.querySelectorAll(selector)); }
+        catch (e) { console.warn("Selector inválido:", selector, e); return []; }
+      };
       const setText = (id, value) => { const el = $(id); if (el) el.textContent = value == null ? "" : String(value); };
       const setHTML = (id, value) => { const el = $(id); if (el) el.innerHTML = value == null ? "" : String(value); };
       const setValue = (id, value) => { const el = $(id); if (el) el.value = value == null ? "" : String(value); };
@@ -2328,9 +2333,7 @@
       /* ── FILTERS ── */
       function setFilter(type, val) {
         activeFilters[type] = val;
-        document
-          .querySelectorAll(`[id^="f-${type}-"]`)
-          .forEach((b) => b.classList.remove("on"));
+        $$(`[id^="f-${type}-"]`).forEach((b) => b.classList.remove("on"));
         const btn = $(`f-${type}-${val}`);
         if (btn) btn.classList.add("on");
         savePrefs();
@@ -2435,7 +2438,21 @@
         filtered = sortItems(filtered, (($("sort-select") && $("sort-select").value) || "pri_desc"));
         updateCounts(filtered);
         renderChips(search);
-        renderContent(filtered);
+        try {
+          renderContent(filtered);
+        } catch (e) {
+          console.error("Error al renderizar contenido:", e);
+          setHTML("content-area", `
+            <div class="error-box">
+              <div class="error-title">No se pudo renderizar el backlog</div>
+              <div class="error-body">
+                Los datos se cargaron correctamente, pero hubo un problema al dibujar la vista.
+                <br><br><strong>Detalle:</strong> ${esc(e.message)}
+                <br><br>Revisá que el HTML publicado sea esta versión completa y no una versión intermedia.
+              </div>
+            </div>
+          `);
+        }
       }
 
       /* ── SORT ── */
@@ -2913,7 +2930,7 @@
         const logo = $("m-logo");
         const logoFallback = $("m-logo-fallback");
         const logoUrl = safeUrl(s.logo_url);
-        if (logoFallback) logoFallback.textContent = sellerInitials(s.nombre);
+        setText("m-logo-fallback", sellerInitials(s.nombre));
         if (logo) {
           logo.onerror = () => {
             logo.classList.add("hidden");
@@ -3108,9 +3125,7 @@
 
       function applySavedFiltersToButtons() {
         ["camino", "prioridad", "estado", "alerta", "relevamiento"].forEach((type) => {
-          document
-            .querySelectorAll(`[id^="f-${type}-"]`)
-            .forEach((b) => b.classList.remove("on"));
+          $$(`[id^="f-${type}-"]`).forEach((b) => b.classList.remove("on"));
           const val = activeFilters[type] || "todos";
           const btn = $(`f-${type}-${val}`);
           if (btn) btn.classList.add("on");
