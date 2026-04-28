@@ -2059,8 +2059,11 @@
       }
 
       function pctNumber(v) {
-        const n = parseFloat(String(v || "").replace("%", "").replace(",", "."));
-        return isNaN(n) ? 0 : Math.max(0, Math.min(100, Math.round(n)));
+        const raw = String(v || "").trim();
+        const n = parseFloat(raw.replace("%", "").replace(",", "."));
+        if (isNaN(n)) return 0;
+        const val = !raw.includes("%") && n > 0 && n <= 1 ? n * 100 : n;
+        return Math.max(0, Math.min(100, Math.round(val)));
       }
 
       function isYes(v) {
@@ -2276,9 +2279,9 @@
           if (!sellerRes.ok) throw new Error("HTTP " + sellerRes.status);
           const sellersText = await sellerRes.text();
           const relMap = new Map();
-          relevamientos.forEach((r) => relMap.set(r.seller_id, r));
+          relevamientos.forEach((r) => relMap.set(norm(r.seller_id), r));
           ALL = transform(parseCSV(sellersText))
-            .map((s) => mergeRelevamiento(s, relMap.get(s.seller_id)))
+            .map((s) => mergeRelevamiento(s, relMap.get(norm(s.seller_id))))
             .filter((s) => s.activo);
           setStatus(
             "live",
@@ -2408,7 +2411,7 @@
               s.observaciones,
               s.notas,
               s._rel_insights ? s._rel_insights.model : "",
-              s._rel_insights ? s._rel_insights.alerts.join(" ") : "",
+              s._rel_insights ? s._rel_insights.alerts.map(a => a.txt).join(" ") : "",
               s._rel_insights ? s._rel_insights.limitaciones : "",
             ]
               .join(" ")
@@ -2473,7 +2476,6 @@
         $("kpi-alertas").textContent = conAlertas;
         $("kpi-relevados").textContent = relevados;
         $("kpi-relevados-s").textContent = ALL.length ? Math.round((relevados / ALL.length) * 100) + "% del pipeline" : "Con formulario";
-        $("kpi-c1").textContent = by((s) => s.camino === "rapida_activacion");
         $("kpi-c2").textContent = by((s) => s.camino === "integracion_vtex");
         $("kpi-c3").textContent = by((s) => s.camino === "seller_center");
 
