@@ -1365,6 +1365,60 @@
         .eval-grid, .rel-kpi-inline { grid-template-columns: 1fr; }
       }
 
+
+      /* ── V14 GOVERNANCE / DATA SOURCE ───────────────────── */
+      .source-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 6px;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        margin-left: 5px;
+        vertical-align: middle;
+      }
+      .source-pill.validado { background: rgba(94,168,50,.13); color: #b7e69d; border: 1px solid rgba(94,168,50,.26); }
+      .source-pill.estimado { background: rgba(255,183,77,.10); color: #ffd48a; border: 1px solid rgba(255,183,77,.24); }
+      .source-pill.manual { background: rgba(100,181,246,.10); color: #a8d4fb; border: 1px solid rgba(100,181,246,.22); }
+      .gov-strip {
+        padding: 8px 22px;
+        border-bottom: 1px solid var(--bdr);
+        background: rgba(94,168,50,.045);
+        color: var(--t2);
+        font-size: 11.5px;
+        line-height: 1.45;
+      }
+      .gov-strip strong { color: var(--g); }
+      .quick-row {
+        display:flex;
+        gap:7px;
+        flex-wrap:wrap;
+        padding: 10px 22px 0;
+      }
+      .quick-btn {
+        border: 1px solid var(--bdr);
+        background: rgba(255,255,255,.035);
+        color: var(--t2);
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 10.5px;
+        font-weight: 800;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        cursor:pointer;
+        transition: all .15s;
+      }
+      .quick-btn:hover { border-color: var(--g-brd); color: var(--g); background: var(--g-dim); }
+      .mini-action.link { text-decoration:none; display:inline-flex; align-items:center; }
+      .data-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:8px; margin: 10px 0 12px; }
+      .data-tile { background: rgba(255,255,255,.025); border:1px solid var(--bdr-l); border-radius:7px; padding:9px; }
+      .data-k { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--t3); margin-bottom:4px; }
+      .data-v { font-size:12px; color:var(--t1); line-height:1.35; }
+      @media (max-width:560px){ .data-grid{ grid-template-columns:1fr; } }
+
       /* ── STATES ─────────────────────────────────────────── */
       .loader,
       .empty,
@@ -1545,6 +1599,34 @@
             onchange="setSelectFilter('plataforma', this.value)"
           >
             <option value="todos">Todas</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Modelo integración</div>
+          <select class="sel" id="modelo-select" onchange="setSelectFilter('modelo_integracion', this.value)">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Responsable</div>
+          <select class="sel" id="responsable-select" onchange="setSelectFilter('responsable', this.value)">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Estado operativo</div>
+          <select class="sel" id="operativo-select" onchange="setSelectFilter('estado_operativo', this.value)">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Riesgo</div>
+          <select class="sel" id="riesgo-select" onchange="setSelectFilter('riesgo', this.value)">
+            <option value="todos">Todos</option>
           </select>
         </div>
 
@@ -1753,6 +1835,17 @@
           </div>
         </section>
 
+        <section class="gov-strip">
+          <strong>Gobernanza v14:</strong> el pipeline y el estado operativo se toman de la hoja <strong>sellers</strong>. Categoría y plataforma usan regla de override: <strong>relevamiento validado &gt; dato estimado del backlog</strong>.
+        </section>
+
+        <section class="quick-row">
+          <button class="quick-btn" onclick="quickFilter('bloqueados')">Ver bloqueados</button>
+          <button class="quick-btn" onclick="quickFilter('listos')">Listos para integrar</button>
+          <button class="quick-btn" onclick="quickFilter('alta')">Alta prioridad</button>
+          <button class="quick-btn" onclick="quickFilter('pendientes_relevamiento')">Sin relevamiento</button>
+        </section>
+
         <!-- Toolbar -->
         <section class="toolbar">
           <div class="toolbar-l">
@@ -1806,7 +1899,7 @@
 
     <script>
       /* ═══════════════════════════════════════════════════════
-   V13 — pipeline unificado con Hub, proceso de onboarding y gestión operativa
+   V14 — gobernanza real, pipeline normalizado y override relevamiento > sellers
    CONFIG — pegar URLs publicadas como CSV desde Google Sheets
 ═══════════════════════════════════════════════════════ */
       const CONFIG = {
@@ -1816,16 +1909,16 @@
         // Si queda vacío, el backlog funciona solo con la hoja sellers.
         RELEVAMIENTOS_URL:
           "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwd-qIMhoH1poJpaTZqN-7O5IGAfPDTxslBAX8LCPogTkwheW2vWsq59JkvvYakM8ndCKgUQualQyi/pub?gid=233624428&single=true&output=csv",
-        STORAGE_KEY: "spt-backlog-v13",
+        STORAGE_KEY: "spt-backlog-v14",
       };
 
       const PIPELINE = [
         { key: "identificados", label: "Identificados", cls: "c1", sub: "Base inicial" },
         { key: "contactados", label: "Contactados", cls: "c1", sub: "Contacto comercial" },
-        { key: "en_evaluacion", label: "En evaluación", cls: "c2", sub: "Calificación + relevamiento" },
-        { key: "en_definicion_tecnica", label: "En definición técnica", cls: "c2", sub: "Modelo y alcance" },
-        { key: "listos_para_integrar", label: "Listos para integrar", cls: "c3", sub: "Aprobados para ejecución" },
-        { key: "en_integracion", label: "En integración", cls: "c3", sub: "Implementación / QA" },
+        { key: "evaluacion", label: "En evaluación", cls: "c2", sub: "Calificación + relevamiento" },
+        { key: "definicion", label: "En definición técnica", cls: "c2", sub: "Modelo y alcance" },
+        { key: "listo_integrar", label: "Listos para integrar", cls: "c3", sub: "Aprobados para ejecución" },
+        { key: "integracion", label: "En integración", cls: "c3", sub: "Implementación / QA" },
         { key: "live", label: "Live", cls: "c2", sub: "Operando" },
       ];
 
@@ -1836,10 +1929,38 @@
         return item ? item.label : (v || "Identificados");
       };
 
+      function normalizePipeline(v, fallbackEtapa = "") {
+        const n = norm(v || "");
+        if (["identificado", "identificados", "potencial", "pipeline", "nuevo"].includes(n) || n.includes("identificado")) return "Identificados";
+        if (n.includes("contact")) return "Contactados";
+        if (n.includes("evaluacion") || n.includes("relevamiento") || n.includes("calificacion") || n.includes("readiness")) return "En evaluación";
+        if (n.includes("definicion") || n.includes("tecnica") || n.includes("acuerdo") || n.includes("propuesta")) return "En definición técnica";
+        if (n.includes("listo") || n.includes("aprobado") || n.includes("apto")) return "Listos para integrar";
+        if (n.includes("integracion") || n.includes("implementacion") || n.includes("onboarding") || n.includes("qa")) return "En integración";
+        if (n.includes("live") || n.includes("go_live") || n.includes("golive")) return "Live";
+        return deriveEstado(fallbackEtapa);
+      }
+
+      function normalizeOperativo(v) {
+        const n = norm(v || "");
+        if (!n || n === "ok" || n.includes("sin_bloqueo")) return "ok";
+        if (n.includes("bloque")) return "bloqueado";
+        if (n.includes("pendiente") || n.includes("info") || n.includes("informacion")) return "pendiente_info";
+        if (n.includes("valid")) return "en_validacion";
+        return n;
+      }
+
+      function operativoLabel(v) {
+        const n = normalizeOperativo(v);
+        return ({ ok: "OK", pendiente_info: "Pendiente info", en_validacion: "En validación", bloqueado: "Bloqueado" })[n] || cap(String(v || "OK").replaceAll("_", " "));
+      }
+
       /* ── HEADER ALIASES — mapea cualquier variante de nombre de columna al campo canónico ── */
       const ALIASES = {
         seller_id: ["seller_id", "id_unico_del_seller", "id_unico"],
-        nombre: ["nombre", "seller_nombre", "nombre_marca", "nombre___marca"],
+        pipeline_estado: ["pipeline_estado", "estado_pipeline", "estado_backlog", "estado_funnel"],
+        estado_operativo: ["estado_operativo", "operativo_estado", "estado_ops"],
+        nombre: ["nombre", "seller_nombre", "nombre_marca", "nombre___marca", "marca"],
         categoria: [
           "categoria",
           "categoría",
@@ -1847,6 +1968,9 @@
           "categorias",
           "categorías",
         ],
+        categoria_estimado: ["categoria_estimado", "categoría_estimado", "categoria_preliminar", "categorias_estimadas"],
+        plataforma_estimado: ["plataforma_estimado", "plataforma_preliminar", "sistema_estimado", "tecnologia_estimado"],
+        fuente_estimacion: ["fuente_estimacion", "fuente_estimación", "fuente_preliminar"],
         camino: ["camino", "camino_de_integracion", "camino_de_integración"],
         modelo_integracion: [
           "modelo_integracion",
@@ -1857,6 +1981,9 @@
         ],
         etapa_actual: ["etapa_actual", "etapa"],
         prioridad: ["prioridad"],
+        responsable: ["responsable", "responsable_marketplace", "owner"],
+        ultima_actualizacion: ["ultima_actualizacion", "última_actualización", "fecha_ultima_actualizacion", "actualizado"],
+        notas_operativas: ["notas_operativas", "nota_operativa"],
         proximo_paso: ["proximo_paso", "próximo_paso"],
         progreso_pct: ["progreso_pct", "progreso"],
         bloqueo_flag: ["bloqueo_flag", "bloqueo"],
@@ -1918,15 +2045,20 @@
       /* ── STATE ── */
       let ALL = [];
       let currentView = "kanban";
-      let activeFilters = {
+      const DEFAULT_FILTERS = {
         camino: "todos",
         prioridad: "todos",
         estado: "todos",
         alerta: "todos",
         sitio_objetivo: "todos",
         plataforma: "todos",
+        modelo_integracion: "todos",
+        responsable: "todos",
+        estado_operativo: "todos",
+        riesgo: "todos",
         relevamiento: "todos",
       };
+      let activeFilters = { ...DEFAULT_FILTERS };
       let autoHandle = null;
       let loading = false;
 
@@ -2176,10 +2308,43 @@
         };
       }
 
+      function hasValue(v) {
+        return String(v || "").trim() !== "" && String(v || "").trim() !== "—";
+      }
+
+      function withSource(value, source, label) {
+        return { value: value || "—", source, label };
+      }
+
       function mergeRelevamiento(s, rel) {
         const insights = createRelInsights(rel);
-        if (!rel) return normalize({ ...s, _rel_insights: insights });
-        const merged = { ...s, _relevamiento: rel, _rel_insights: insights };
+        const merged = { ...s, _relevamiento: rel || null, _rel_insights: insights, _sources: {} };
+
+        // Fuente estimada: datos que se cargan al identificar el seller, antes del contacto.
+        const categoriaEstimada = s.categoria_estimado || s.categoria || s.categorias || "";
+        const plataformaEstimada = s.plataforma_estimado || s.plataforma || "";
+
+        // Regla de override v14: relevamiento validado > sellers estimado.
+        const categoriaValidada = rel ? (rel.categorias || rel.categoria || rel.categoria_principal || "") : "";
+        const plataformaValidada = rel ? (rel.plataforma || rel.sistema_plataforma || rel.tecnologia || "") : "";
+
+        if (hasValue(categoriaValidada)) {
+          merged.categoria = categoriaValidada;
+          merged._sources.categoria = withSource(categoriaValidada, "validado", "Relevamiento");
+        } else {
+          merged.categoria = categoriaEstimada || "—";
+          merged._sources.categoria = withSource(categoriaEstimada || "—", hasValue(categoriaEstimada) ? "estimado" : "manual", hasValue(categoriaEstimada) ? "Estimado" : "Sin dato");
+        }
+
+        if (hasValue(plataformaValidada)) {
+          merged.plataforma = plataformaValidada;
+          merged._sources.plataforma = withSource(plataformaValidada, "validado", "Relevamiento");
+        } else {
+          merged.plataforma = plataformaEstimada || "";
+          merged._sources.plataforma = withSource(plataformaEstimada || "—", hasValue(plataformaEstimada) ? "estimado" : "manual", hasValue(plataformaEstimada) ? "Estimado" : "Sin dato");
+        }
+
+        // Datos operativos/comerciales pueden completarse desde relevamiento si sellers no los tiene.
         const fromRel = [
           "contacto_nombre",
           "contacto_email",
@@ -2187,16 +2352,14 @@
           "gmv_estimado",
           "ticket_promedio",
           "seller_url",
-          "plataforma",
           "metodo_integracion",
         ];
         fromRel.forEach((key) => {
-          if (!merged[key] && rel[key]) merged[key] = rel[key];
+          if (!hasValue(merged[key]) && rel && hasValue(rel[key])) merged[key] = rel[key];
         });
-        if (!merged.modelo_integracion || merged.modelo_integracion === "—") merged.modelo_integracion = insights.model;
-        if ((!merged.categoria || merged.categoria === "—") && (rel.categorias || rel.categoria))
-          merged.categoria = rel.categorias || rel.categoria;
-        if (!merged.observaciones && (rel.limitaciones_actuales || rel.particularidades || rel.comentarios)) {
+
+        if (!hasValue(merged.modelo_integracion)) merged.modelo_integracion = insights.model;
+        if (!hasValue(merged.observaciones) && rel && (rel.limitaciones_actuales || rel.particularidades || rel.comentarios)) {
           merged.observaciones = [rel.limitaciones_actuales, rel.particularidades, rel.comentarios].filter(Boolean).join(" · ");
         }
         return normalize(merged);
@@ -2206,19 +2369,21 @@
         const v = { ...o };
         v.nombre = v.nombre || "—";
         v.categoria = v.categoria || "—";
+        v.categoria_estimado = v.categoria_estimado || "";
+        v.plataforma_estimado = v.plataforma_estimado || "";
+        v.fuente_estimacion = v.fuente_estimacion || "";
         v.camino = normCamino(v.camino);
-        v.modelo_integracion = normInteg(
-          v.modelo_integracion || v.integracion || "",
-        );
-        v.estado_macro = deriveEstado(v.etapa_actual);
+        v.modelo_integracion = normInteg(v.modelo_integracion || v.integracion || "");
+        v.pipeline_estado = normalizePipeline(v.pipeline_estado || v.etapa_actual, v.etapa_actual);
+        v.estado_macro = v.pipeline_estado;
+        v.estado_operativo = normalizeOperativo(v.estado_operativo || (v.bloqueo_flag ? "bloqueado" : "ok"));
         v.prioridad = cap(v.prioridad || "Media");
-        v.progreso_pct = Math.min(
-          100,
-          Math.max(0, parseFloat(v.progreso_pct) || 0),
-        );
-        v.bloqueo_flag =
-          norm(v.bloqueo_flag) === "si" || norm(v.bloqueo_flag) === "s";
-        v.riesgo_nivel = cap(v.riesgo_nivel || "Bajo");
+        v.responsable = v.responsable || "—";
+        v.ultima_actualizacion = v.ultima_actualizacion || v.fecha_ultima_actualizacion || "";
+        v.notas_operativas = v.notas_operativas || v.notas || "";
+        v.progreso_pct = Math.min(100, Math.max(0, parseFloat(v.progreso_pct) || 0));
+        v.bloqueo_flag = v.estado_operativo === "bloqueado" || norm(v.bloqueo_flag) === "si" || norm(v.bloqueo_flag) === "s";
+        v.riesgo_nivel = cap(v.riesgo_nivel || v.riesgo || "Bajo");
         v.activo = v.activo === "" || norm(v.activo) !== "no";
         return v;
       }
@@ -2339,28 +2504,43 @@
       function clearFilters() {
         setValue("search-input", "");
         setValue("sort-select", "pri_desc");
-        activeFilters = {
-          camino: "todos",
-          prioridad: "todos",
-          estado: "todos",
-          alerta: "todos",
-          sitio_objetivo: "todos",
-          plataforma: "todos",
-          relevamiento: "todos",
-        };
-        setValue("site-select", "todos");
-        setValue("platform-select", "todos");
+        activeFilters = { ...DEFAULT_FILTERS };
+        ["site-select", "platform-select", "modelo-select", "responsable-select", "operativo-select", "riesgo-select"].forEach((id) => setValue(id, "todos"));
         document
           .querySelectorAll(
             '[id^="f-camino-"],[id^="f-prioridad-"],[id^="f-estado-"],[id^="f-alerta-"],[id^="f-relevamiento-"]'
           )
           .forEach((b) => b.classList.remove("on"));
-        ["f-camino-todos", "f-prioridad-todos", "f-estado-todos", "f-relevamiento-todos"].forEach(
-          (id) => {
-            const b = $(id);
-            if (b) b.classList.add("on");
-          },
-        );
+        ["f-camino-todos", "f-prioridad-todos", "f-estado-todos", "f-relevamiento-todos"].forEach((id) => {
+          const b = $(id);
+          if (b) b.classList.add("on");
+        });
+        savePrefs();
+        applyFilters();
+      }
+
+      function quickFilter(type) {
+        clearFilters();
+        if (type === "bloqueados") activeFilters.alerta = "bloqueado";
+        if (type === "listos") activeFilters.estado = "Listos para integrar";
+        if (type === "alta") activeFilters.prioridad = "Alta";
+        if (type === "pendientes_relevamiento") activeFilters.relevamiento = "pendiente";
+        if (activeFilters.alerta !== "todos") {
+          $$(`[id^="f-alerta-"]`).forEach((b) => b.classList.remove("on"));
+          const b = $(`f-alerta-${activeFilters.alerta}`); if (b) b.classList.add("on");
+        }
+        if (activeFilters.estado !== "todos") {
+          $$(`[id^="f-estado-"]`).forEach((b) => b.classList.remove("on"));
+          const b = $(`f-estado-${activeFilters.estado}`); if (b) b.classList.add("on");
+        }
+        if (activeFilters.prioridad !== "todos") {
+          $$(`[id^="f-prioridad-"]`).forEach((b) => b.classList.remove("on"));
+          const b = $(`f-prioridad-${activeFilters.prioridad}`); if (b) b.classList.add("on");
+        }
+        if (activeFilters.relevamiento !== "todos") {
+          $$(`[id^="f-relevamiento-"]`).forEach((b) => b.classList.remove("on"));
+          const b = $(`f-relevamiento-${activeFilters.relevamiento}`); if (b) b.classList.add("on");
+        }
         savePrefs();
         applyFilters();
       }
@@ -2374,6 +2554,10 @@
           alerta,
           sitio_objetivo,
           plataforma,
+          modelo_integracion,
+          responsable,
+          estado_operativo,
+          riesgo,
           relevamiento,
         } = activeFilters;
 
@@ -2390,8 +2574,11 @@
             norm(s.sitio_objetivo) !== norm(sitio_objetivo)
           )
             return false;
-          if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma))
-            return false;
+          if (plataforma !== "todos" && norm(s.plataforma) !== norm(plataforma)) return false;
+          if (modelo_integracion !== "todos" && norm(s.modelo_integracion) !== norm(modelo_integracion)) return false;
+          if (responsable !== "todos" && norm(s.responsable) !== norm(responsable)) return false;
+          if (estado_operativo !== "todos" && norm(s.estado_operativo) !== norm(estado_operativo)) return false;
+          if (riesgo !== "todos" && norm(s.riesgo_nivel) !== norm(riesgo)) return false;
           if (relevamiento !== "todos") {
             const status = s._rel_insights ? s._rel_insights.status_key : "pendiente";
             if (status !== relevamiento) return false;
@@ -2406,7 +2593,14 @@
               s.estado_macro,
               s.proximo_paso,
               s.plataforma,
+              s.plataforma_estimado,
+              s.categoria_estimado,
+              s.fuente_estimacion,
               s.sitio_objetivo,
+              s.responsable,
+              s.estado_operativo,
+              s.riesgo_nivel,
+              s.modelo_integracion,
               s.seller_url,
               s.observaciones,
               s.notas,
@@ -2561,6 +2755,14 @@
           chips.push(
             `<span class="chip">Plataforma: <strong>${esc(activeFilters.plataforma)}</strong></span>`,
           );
+        if (activeFilters.modelo_integracion !== "todos")
+          chips.push(`<span class="chip">Modelo: <strong>${esc(activeFilters.modelo_integracion)}</strong></span>`);
+        if (activeFilters.responsable !== "todos")
+          chips.push(`<span class="chip">Responsable: <strong>${esc(activeFilters.responsable)}</strong></span>`);
+        if (activeFilters.estado_operativo !== "todos")
+          chips.push(`<span class="chip">Estado operativo: <strong>${esc(operativoLabel(activeFilters.estado_operativo))}</strong></span>`);
+        if (activeFilters.riesgo !== "todos")
+          chips.push(`<span class="chip">Riesgo: <strong>${esc(activeFilters.riesgo)}</strong></span>`);
         if (activeFilters.relevamiento !== "todos")
           chips.push(
             `<span class="chip">Relevamiento: <strong>${esc(activeFilters.relevamiento)}</strong></span>`,
@@ -2640,31 +2842,44 @@
           : parts[0].slice(0, 2).toUpperCase();
       }
 
-      function populateSelect(id, values, placeholder) {
+      function filterKeyBySelectId(id) {
+        return ({
+          "site-select": "sitio_objetivo",
+          "platform-select": "plataforma",
+          "modelo-select": "modelo_integracion",
+          "responsable-select": "responsable",
+          "operativo-select": "estado_operativo",
+          "riesgo-select": "riesgo",
+        })[id] || "plataforma";
+      }
+
+      function populateSelect(id, values, placeholder, labelFn = (v) => v) {
         const el = $(id);
         if (!el) return;
-        const key = id === "site-select" ? "sitio_objetivo" : "plataforma";
+        const key = filterKeyBySelectId(id);
         const current = activeFilters[key] || "todos";
         const html = [`<option value="todos">${placeholder}</option>`]
-          .concat(
-            values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`),
-          )
+          .concat(values.map((v) => `<option value="${esc(v)}">${esc(labelFn(v))}</option>`))
           .join("");
         if (el.innerHTML !== html) el.innerHTML = html;
         el.value = values.includes(current) ? current : "todos";
         if (!values.includes(current)) activeFilters[key] = "todos";
       }
 
-      function populateDynamicFilters() {
+      function uniqueSorted(field) {
         const clean = (v) => String(v || "").trim();
-        const siteValues = [
-          ...new Set(ALL.map((s) => clean(s.sitio_objetivo)).filter(Boolean)),
-        ].sort((a, b) => a.localeCompare(b, "es"));
-        const platformValues = [
-          ...new Set(ALL.map((s) => clean(s.plataforma)).filter(Boolean)),
-        ].sort((a, b) => a.localeCompare(b, "es"));
-        populateSelect("site-select", siteValues, "Todos");
-        populateSelect("platform-select", platformValues, "Todas");
+        return [...new Set(ALL.map((s) => clean(s[field])).filter((v) => v && v !== "—"))].sort((a, b) => a.localeCompare(b, "es"));
+      }
+
+      function populateDynamicFilters() {
+        populateSelect("site-select", uniqueSorted("sitio_objetivo"), "Todos");
+        populateSelect("platform-select", uniqueSorted("plataforma"), "Todas");
+        populateSelect("modelo-select", uniqueSorted("modelo_integracion"), "Todos");
+        populateSelect("responsable-select", uniqueSorted("responsable"), "Todos");
+        const ops = [...new Set(ALL.map((s) => s.estado_operativo).filter(Boolean))].sort();
+        const riesgos = [...new Set(ALL.map((s) => s.riesgo_nivel).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+        populateSelect("operativo-select", ops, "Todos", operativoLabel);
+        populateSelect("riesgo-select", riesgos, "Todos");
       }
 
       /* ── RENDER ── */
@@ -2683,6 +2898,27 @@
     <div class="prog-track">
       <div class="prog-fill ${progClass(pct)}" style="width:${pct}%"></div>
     </div>`;
+      }
+
+      function sourcePill(info) {
+        if (!info) return "";
+        const cls = info.source || "manual";
+        const label = info.label || (cls === "validado" ? "Relevamiento" : cls === "estimado" ? "Estimado" : "Manual");
+        return `<span class="source-pill ${esc(cls)}">${esc(label)}</span>`;
+      }
+
+      function buildLink(label, href) {
+        const safe = safeUrl(href);
+        return safe ? `<a class="mini-action link" href="${esc(safe)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(label)}</a>` : "";
+      }
+
+      function actionLinks(s) {
+        const id = encodeURIComponent(s.seller_id || "");
+        return [
+          buildLink("Gantt", `Sporting_Gantt_V2.html?seller_id=${id}`),
+          buildLink("Relevamiento", `form-relevamiento-completo_v1.html?seller_id=${id}`),
+          buildLink("Def. técnica", `definicion_tecnica.html?seller_id=${id}`),
+        ].filter(Boolean).join("");
       }
 
       function cardHTML(s) {
@@ -2709,13 +2945,15 @@
       ${safeUrl(s.logo_url) ? `<img class="seller-logo" src="${esc(safeUrl(s.logo_url))}" alt="Logo ${esc(s.nombre)}" loading="lazy" onerror="this.outerHTML='&lt;div class=&quot;seller-logo-fallback&quot;&gt;${esc(sellerInitials(s.nombre))}&lt;/div&gt;'">` : `<div class="seller-logo-fallback">${esc(sellerInitials(s.nombre))}</div>`}
       <div class="seller-meta">
         <div class="scard-name">${esc(s.nombre)}</div>
-        <div class="scard-cat">${esc(s.categoria)}</div>
-        ${s.plataforma || s.sitio_objetivo || s.seller_url ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}${s.seller_url ? `<span class="mini-chip">${linkHTML(s.seller_url, "Ver sitio")}</span>` : ""}</div>` : ""}
+        <div class="scard-cat">${esc(s.categoria)} ${sourcePill(s._sources && s._sources.categoria)}</div>
+        ${s.plataforma || s.sitio_objetivo || s.seller_url ? `<div class="meta-line">${s.plataforma ? `<span class="mini-chip">${esc(s.plataforma)} ${sourcePill(s._sources && s._sources.plataforma)}</span>` : ""}${s.sitio_objetivo ? `<span class="mini-chip">${esc(s.sitio_objetivo)}</span>` : ""}${s.seller_url ? `<span class="mini-chip">${linkHTML(s.seller_url, "Ver sitio")}</span>` : ""}</div>` : ""}
       </div>
     </div>
     <div class="scard-tags">
       <span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span>
       <span class="tag ${estadoClass(s.estado_macro)}">${esc(estadoLabel)}</span>
+      <span class="tag ${s.estado_operativo === "bloqueado" ? "integ-sa" : "e-default"}">${esc(operativoLabel(s.estado_operativo))}</span>
+      <span class="tag ${norm(s.riesgo_nivel) === "alto" ? "integ-sa" : norm(s.riesgo_nivel) === "medio" ? "e-propuesta" : "e-default"}">Riesgo ${esc(s.riesgo_nivel || "Bajo")}</span>
       ${s._rel_insights && s._rel_insights.has ? `<span class="tag integ-sc">${esc(s._rel_insights.model)}</span>` : ""}
     </div>
     ${s._rel_insights && s._rel_insights.has ? `
@@ -2741,6 +2979,14 @@
     }
     <div class="scard-grid">
       <div>
+        <div class="mini-lbl">Responsable</div>
+        <div class="mini-val">${esc(s.responsable || "—")}</div>
+      </div>
+      <div>
+        <div class="mini-lbl">Actualización</div>
+        <div class="mini-val">${esc(s.ultima_actualizacion || "—")}</div>
+      </div>
+      <div>
         <div class="mini-lbl">Próximo paso</div>
         <div class="mini-val">${esc(s.proximo_paso || "—")}</div>
       </div>
@@ -2751,8 +2997,8 @@
     </div>
     <div class="card-actions" onclick="event.stopPropagation()">
       <button class="mini-action" onclick="openModal('${esc(s.seller_id)}')">Detalle</button>
+      ${actionLinks(s)}
       ${s._rel_insights && s._rel_insights.has ? `<span class="mini-action ghost">Relevamiento cargado</span>` : `<span class="mini-action ghost">Relevamiento pendiente</span>`}
-      <span class="mini-action ghost">${esc(caminoLabel(s.camino))}</span>
     </div>
   </article>`;
       }
@@ -2789,9 +3035,9 @@
           <thead>
             <tr>
               <th class="td-blk"></th>
-              <th>ID</th><th>Seller</th><th>Categoría</th><th>Plataforma</th><th>Sitio</th><th>Camino</th>
-              <th>Integración</th><th>Relevamiento</th><th>Readiness</th><th>Estado</th><th>Avance</th>
-              <th>Próximo paso</th><th>Go-live</th><th>Prioridad</th>
+              <th>ID</th><th>Seller</th><th>Categoría</th><th>Plataforma</th><th>Sitio</th><th>Modelo</th>
+              <th>Responsable</th><th>Estado operativo</th><th>Riesgo</th><th>Relevamiento</th><th>Readiness</th><th>Pipeline</th><th>Avance</th>
+              <th>Próximo paso</th><th>Actualización</th><th>Prioridad</th>
             </tr>
           </thead>
           <tbody>
@@ -2808,11 +3054,13 @@
                 <td class="td-blk"><div class="td-blk-bar" style="background:${blkColor}"></div></td>
                 <td class="td-id">${esc(s.seller_id)}</td>
                 <td><div class="td-name">${esc(s.nombre)}</div></td>
-                <td>${esc(s.categoria || "—")}</td>
-                <td>${esc(s.plataforma || "—")}</td>
+                <td>${esc(s.categoria || "—")} ${sourcePill(s._sources && s._sources.categoria)}</td>
+                <td>${esc(s.plataforma || "—")} ${sourcePill(s._sources && s._sources.plataforma)}</td>
                 <td>${esc(s.sitio_objetivo || "—")}</td>
-                <td><span class="tag ${cc}-tag">${esc(caminoLabel(s.camino))}</span></td>
                 <td><span class="tag ${integClass(s.modelo_integracion)}">${esc(s.modelo_integracion || "—")}</span></td>
+                <td>${esc(s.responsable || "—")}</td>
+                <td><span class="tag ${s.estado_operativo === "bloqueado" ? "integ-sa" : "e-default"}">${esc(operativoLabel(s.estado_operativo))}</span></td>
+                <td><span class="tag ${norm(s.riesgo_nivel) === "alto" ? "integ-sa" : norm(s.riesgo_nivel) === "medio" ? "e-propuesta" : "e-default"}">${esc(s.riesgo_nivel || "Bajo")}</span></td>
                 <td><span class="rel-badge ${relBadgeClass(s._rel_insights)}">${s._rel_insights && s._rel_insights.has ? esc(s._rel_insights.status) + " · " + s._rel_insights.completitud + "%" : "Pendiente"}</span></td>
                 <td>${s._rel_insights && s._rel_insights.has ? `<strong style="color:var(--t1)">${s._rel_insights.score}%</strong><br><span style="font-size:10px;color:var(--t3)">${esc(s._rel_insights.model)}</span>` : "—"}</td>
                 <td><span class="tag ${estadoClass(s.estado_macro)}">${esc((s.estado_macro || "—").split("·")[0].trim())}</span></td>
@@ -2823,7 +3071,7 @@
                   </div>
                 </td>
                 <td class="td-next">${esc(s.proximo_paso || "—")}</td>
-                <td>${esc(s.go_live_objetivo || "—")}</td>
+                <td>${esc(s.ultima_actualizacion || "—")}</td>
                 <td><span class="sc-pri ${priClass(s.prioridad)}">${esc(s.prioridad || "—")}</span></td>
               </tr>`;
               })
