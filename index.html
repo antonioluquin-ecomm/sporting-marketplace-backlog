@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backlog de Sellers — Sporting Marketplace PRO v12</title>
+    <title>Backlog de Sellers — Sporting Marketplace PRO v13</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -476,8 +476,8 @@
       /* ── KANBAN ─────────────────────────────────────────── */
       .kanban {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
         padding: 18px 22px;
       }
       .k-col {
@@ -1624,57 +1624,30 @@
         <div class="sb-div"></div>
 
         <div class="sb-section">
-          <div class="sb-label">Estado</div>
-          <button
-            class="fb on"
-            onclick="setFilter('estado', 'todos')"
-            id="f-estado-todos"
-          >
+          <div class="sb-label">Estado del pipeline</div>
+          <button class="fb on" onclick="setFilter('estado', 'todos')" id="f-estado-todos">
             <span>Todos</span><span class="fc" id="fe-todos">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Identificado')"
-            id="f-estado-Identificado"
-          >
-            <span>Identificado</span
-            ><span class="fc" id="fe-identificado">0</span>
+          <button class="fb" onclick="setFilter('estado', 'Identificados')" id="f-estado-Identificados">
+            <span>Identificados</span><span class="fc" id="fe-identificados">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Contactado')"
-            id="f-estado-Contactado"
-          >
-            <span>Contactado</span><span class="fc" id="fe-contactado">0</span>
+          <button class="fb" onclick="setFilter('estado', 'Contactados')" id="f-estado-Contactados">
+            <span>Contactados</span><span class="fc" id="fe-contactados">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Relevamiento')"
-            id="f-estado-Relevamiento"
-          >
-            <span>Relevamiento</span
-            ><span class="fc" id="fe-relevamiento">0</span>
+          <button class="fb" onclick="setFilter('estado', 'En evaluación')" id="f-estado-En evaluación">
+            <span>En evaluación</span><span class="fc" id="fe-evaluacion">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Propuesta')"
-            id="f-estado-Propuesta"
-          >
-            <span>Propuesta</span><span class="fc" id="fe-propuesta">0</span>
+          <button class="fb" onclick="setFilter('estado', 'En definición técnica')" id="f-estado-En definición técnica">
+            <span>En definición técnica</span><span class="fc" id="fe-definicion">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Acuerdo')"
-            id="f-estado-Acuerdo"
-          >
-            <span>Acuerdo</span><span class="fc" id="fe-acuerdo">0</span>
+          <button class="fb" onclick="setFilter('estado', 'Listos para integrar')" id="f-estado-Listos para integrar">
+            <span>Listos para integrar</span><span class="fc" id="fe-listos">0</span>
           </button>
-          <button
-            class="fb"
-            onclick="setFilter('estado', 'Onboarding')"
-            id="f-estado-Onboarding"
-          >
-            <span>Onboarding</span><span class="fc" id="fe-onboarding">0</span>
+          <button class="fb" onclick="setFilter('estado', 'En integración')" id="f-estado-En integración">
+            <span>En integración</span><span class="fc" id="fe-integracion">0</span>
+          </button>
+          <button class="fb" onclick="setFilter('estado', 'Live')" id="f-estado-Live">
+            <span>Live</span><span class="fc" id="fe-live">0</span>
           </button>
         </div>
 
@@ -1759,24 +1732,24 @@
             <div class="kpi-s" id="kpi-total-s">Pipeline activo</div>
           </div>
           <div class="kpi rd">
-            <div class="kpi-l">Alertas</div>
+            <div class="kpi-l">Bloqueados</div>
             <div class="kpi-n" id="kpi-alertas">—</div>
-            <div class="kpi-s">Bloqueos + riesgos</div>
+            <div class="kpi-s">Requieren destrabe</div>
           </div>
           <div class="kpi c1">
-            <div class="kpi-l">Relevados</div>
+            <div class="kpi-l">En evaluación</div>
             <div class="kpi-n" id="kpi-relevados">—</div>
-            <div class="kpi-s" id="kpi-relevados-s">Con formulario</div>
+            <div class="kpi-s" id="kpi-relevados-s">Análisis activo</div>
           </div>
           <div class="kpi c2">
-            <div class="kpi-l">Integración VTEX</div>
+            <div class="kpi-l">Listos para integrar</div>
             <div class="kpi-n" id="kpi-c2">—</div>
-            <div class="kpi-s">Q3 / Q4 2026</div>
+            <div class="kpi-s">Sin bloqueos críticos</div>
           </div>
           <div class="kpi c3">
-            <div class="kpi-l">Seller Center</div>
+            <div class="kpi-l">En integración</div>
             <div class="kpi-n" id="kpi-c3">—</div>
-            <div class="kpi-s">Q4 2026 / Q1 2027</div>
+            <div class="kpi-s">Ejecución técnica</div>
           </div>
         </section>
 
@@ -1833,7 +1806,7 @@
 
     <script>
       /* ═══════════════════════════════════════════════════════
-   V12 — versión robustecida contra IDs faltantes / HTML publicado incompleto
+   V13 — pipeline unificado con Hub, proceso de onboarding y gestión operativa
    CONFIG — pegar URLs publicadas como CSV desde Google Sheets
 ═══════════════════════════════════════════════════════ */
       const CONFIG = {
@@ -1843,7 +1816,24 @@
         // Si queda vacío, el backlog funciona solo con la hoja sellers.
         RELEVAMIENTOS_URL:
           "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwd-qIMhoH1poJpaTZqN-7O5IGAfPDTxslBAX8LCPogTkwheW2vWsq59JkvvYakM8ndCKgUQualQyi/pub?gid=233624428&single=true&output=csv",
-        STORAGE_KEY: "spt-backlog-v4",
+        STORAGE_KEY: "spt-backlog-v13",
+      };
+
+      const PIPELINE = [
+        { key: "identificados", label: "Identificados", cls: "c1", sub: "Base inicial" },
+        { key: "contactados", label: "Contactados", cls: "c1", sub: "Contacto comercial" },
+        { key: "en_evaluacion", label: "En evaluación", cls: "c2", sub: "Calificación + relevamiento" },
+        { key: "en_definicion_tecnica", label: "En definición técnica", cls: "c2", sub: "Modelo y alcance" },
+        { key: "listos_para_integrar", label: "Listos para integrar", cls: "c3", sub: "Aprobados para ejecución" },
+        { key: "en_integracion", label: "En integración", cls: "c3", sub: "Implementación / QA" },
+        { key: "live", label: "Live", cls: "c2", sub: "Operando" },
+      ];
+
+      const pipelineKey = (v) => norm(v || "Identificados");
+      const pipelineLabel = (v) => {
+        const k = pipelineKey(v);
+        const item = PIPELINE.find((p) => p.key === k);
+        return item ? item.label : (v || "Identificados");
       };
 
       /* ── HEADER ALIASES — mapea cualquier variante de nombre de columna al campo canónico ── */
@@ -2253,15 +2243,15 @@
       }
       function deriveEstado(etapa) {
         const n = norm(etapa || "");
-        if (n.includes("relevamiento")) return "Relevamiento recibido";
-        if (n.includes("propuesta")) return "Propuesta enviada";
-        if (n.includes("acuerdo")) return "Acuerdo";
-        if (n.includes("onboarding")) return "Onboarding";
-        if (n.includes("go_live") || n.includes("golive")) return "Go-Live";
-        if (n.includes("identificado")) return "Identificado";
-        if (n.includes("contacto")) return "Contactado";
-        if (n.includes("pendiente")) return "Pendiente readiness";
-        return "Identificado";
+        if (n.includes("live") || n.includes("go_live") || n.includes("golive")) return "Live";
+        if (n.includes("integracion") || n.includes("implementacion") || n.includes("onboarding") || n.includes("qa")) return "En integración";
+        if (n.includes("listo") || n.includes("aprobado") || n.includes("apto") || n.includes("sin_bloqueo")) return "Listos para integrar";
+        if (n.includes("definicion") || n.includes("definición") || n.includes("tecnica") || n.includes("técnica") || n.includes("acuerdo") || n.includes("propuesta")) return "En definición técnica";
+        if (n.includes("evaluacion") || n.includes("evaluación") || n.includes("relevamiento") || n.includes("calificacion") || n.includes("readiness")) return "En evaluación";
+        if (n.includes("contact")) return "Contactados";
+        if (n.includes("identificado") || n.includes("potencial") || n.includes("pipeline") || n.includes("nuevo")) return "Identificados";
+        if (!n) return "Identificados";
+        return "Identificados";
       }
       function cap(v) {
         const s = String(v || "").trim();
@@ -2391,11 +2381,7 @@
           if (camino !== "todos" && s.camino !== camino) return false;
           if (prioridad !== "todos" && norm(s.prioridad) !== norm(prioridad))
             return false;
-          if (
-            estado !== "todos" &&
-            !norm(s.estado_macro).includes(norm(estado))
-          )
-            return false;
+          if (estado !== "todos" && norm(s.estado_macro) !== norm(estado)) return false;
           if (alerta === "bloqueado" && !s.bloqueo_flag) return false;
           if (alerta === "riesgo_alto" && norm(s.riesgo_nivel) !== "alto")
             return false;
@@ -2498,99 +2484,49 @@
       /* ── COUNTS ── */
       function updateCounts(filtered) {
         const by = (fn) => ALL.filter(fn).length;
+        const byPipeline = (label) => by((s) => norm(s.estado_macro) === norm(label));
         setText("kpi-total", ALL.length);
-        const relevados = by((s) => Boolean(s._rel_insights && s._rel_insights.has));
-        const conAlertas = by((s) => s.bloqueo_flag || norm(s.riesgo_nivel) === "alto" || (s._rel_insights && s._rel_insights.alerts.length));
-        setText("kpi-alertas", conAlertas);
-        setText("kpi-relevados", relevados);
-        setText("kpi-relevados-s", ALL.length ? Math.round((relevados / ALL.length) * 100) + "% del pipeline" : "Con formulario");
-        setText("kpi-c2", by((s) => s.camino === "integracion_vtex"));
-        setText("kpi-c3", by((s) => s.camino === "seller_center"));
+        const bloqueados = by((s) => s.bloqueo_flag);
+        const evaluacion = byPipeline("En evaluación");
+        const listos = byPipeline("Listos para integrar");
+        const integracion = byPipeline("En integración");
+        setText("kpi-alertas", bloqueados);
+        setText("kpi-relevados", evaluacion);
+        setText("kpi-relevados-s", "Calificación / relevamiento");
+        setText("kpi-c2", listos);
+        setText("kpi-c3", integracion);
 
-        const fc = (id, n) => {
-          const e = $(id);
-          if (e) e.textContent = n;
-        };
+        const fc = (id, n) => { const e = $(id); if (e) e.textContent = n; };
         fc("fc-todos", ALL.length);
-        fc(
-          "fc-c1",
-          by((s) => s.camino === "rapida_activacion"),
-        );
-        fc(
-          "fc-c2",
-          by((s) => s.camino === "integracion_vtex"),
-        );
-        fc(
-          "fc-c3",
-          by((s) => s.camino === "seller_center"),
-        );
+        fc("fc-c1", by((s) => s.camino === "rapida_activacion"));
+        fc("fc-c2", by((s) => s.camino === "integracion_vtex"));
+        fc("fc-c3", by((s) => s.camino === "seller_center"));
 
         fc("fp-todos", ALL.length);
-        fc(
-          "fp-alta",
-          by((s) => norm(s.prioridad) === "alta"),
-        );
-        fc(
-          "fp-media",
-          by((s) => norm(s.prioridad) === "media"),
-        );
-        fc(
-          "fp-baja",
-          by((s) => norm(s.prioridad) === "baja"),
-        );
+        fc("fp-alta", by((s) => norm(s.prioridad) === "alta"));
+        fc("fp-media", by((s) => norm(s.prioridad) === "media"));
+        fc("fp-baja", by((s) => norm(s.prioridad) === "baja"));
 
         populateDynamicFilters();
 
         fc("fe-todos", ALL.length);
-        fc(
-          "fe-identificado",
-          by((s) => norm(s.estado_macro).includes("identificado")),
-        );
-        fc(
-          "fe-contactado",
-          by((s) => norm(s.estado_macro).includes("contactado")),
-        );
-        fc(
-          "fe-relevamiento",
-          by((s) =>
-            norm(s.estado_macro + s.etapa_actual).includes("relevamiento"),
-          ),
-        );
-        fc(
-          "fe-propuesta",
-          by((s) =>
-            norm(s.estado_macro + s.etapa_actual).includes("propuesta"),
-          ),
-        );
-        fc(
-          "fe-acuerdo",
-          by((s) => norm(s.estado_macro + s.etapa_actual).includes("acuerdo")),
-        );
-        fc(
-          "fe-onboarding",
-          by((s) =>
-            norm(s.estado_macro + s.etapa_actual).includes("onboarding"),
-          ),
-        );
+        fc("fe-identificados", byPipeline("Identificados"));
+        fc("fe-contactados", byPipeline("Contactados"));
+        fc("fe-evaluacion", byPipeline("En evaluación"));
+        fc("fe-definicion", byPipeline("En definición técnica"));
+        fc("fe-listos", byPipeline("Listos para integrar"));
+        fc("fe-integracion", byPipeline("En integración"));
+        fc("fe-live", byPipeline("Live"));
 
-        fc(
-          "fa-bloqueado",
-          by((s) => s.bloqueo_flag),
-        );
-        fc(
-          "fa-riesgo",
-          by((s) => norm(s.riesgo_nivel) === "alto"),
-        );
+        fc("fa-bloqueado", by((s) => s.bloqueo_flag));
+        fc("fa-riesgo", by((s) => norm(s.riesgo_nivel) === "alto"));
 
         fc("fr-todos", ALL.length);
         fc("fr-completo", by((s) => s._rel_insights && s._rel_insights.status_key === "completo"));
         fc("fr-parcial", by((s) => s._rel_insights && s._rel_insights.status_key === "parcial"));
         fc("fr-pendiente", by((s) => !s._rel_insights || s._rel_insights.status_key === "pendiente"));
 
-        setText("results-info",
-          filtered.length === ALL.length
-            ? `${ALL.length} sellers`
-            : `${filtered.length} de ${ALL.length} sellers`);
+        setText("results-info", filtered.length === ALL.length ? `${ALL.length} sellers` : `${filtered.length} de ${ALL.length} sellers`);
       }
 
       /* ── CHIPS ── */
@@ -2663,14 +2599,13 @@
       }
       function estadoClass(v) {
         const n = norm(v);
-        if (n.includes("identificado")) return "e-default";
-        if (n.includes("contactado")) return "e-contactado";
-        if (n.includes("relevamiento")) return "e-relevamiento";
-        if (n.includes("propuesta")) return "e-propuesta";
-        if (n.includes("acuerdo")) return "e-acuerdo";
-        if (n.includes("onboarding")) return "e-onboarding";
-        if (n.includes("go_live") || n.includes("golive")) return "e-golive";
-        if (n.includes("pausado")) return "e-pausado";
+        if (n.includes("identificados")) return "e-default";
+        if (n.includes("contactados")) return "e-contactado";
+        if (n.includes("evaluacion")) return "e-relevamiento";
+        if (n.includes("definicion")) return "e-propuesta";
+        if (n.includes("listos")) return "e-acuerdo";
+        if (n.includes("integracion")) return "e-onboarding";
+        if (n.includes("live")) return "e-golive";
         return "e-default";
       }
       function priClass(v) {
@@ -2814,51 +2749,30 @@
         <div class="mini-val">${esc(s.go_live_objetivo || "—")}</div>
       </div>
     </div>
+    <div class="card-actions" onclick="event.stopPropagation()">
+      <button class="mini-action" onclick="openModal('${esc(s.seller_id)}')">Detalle</button>
+      ${s._rel_insights && s._rel_insights.has ? `<span class="mini-action ghost">Relevamiento cargado</span>` : `<span class="mini-action ghost">Relevamiento pendiente</span>`}
+      <span class="mini-action ghost">${esc(caminoLabel(s.camino))}</span>
+    </div>
   </article>`;
       }
 
       function renderKanban(filtered) {
-        const groups = [
-          {
-            key: "rapida_activacion",
-            title: "Rápida activación",
-            sub: "Q2 · Mayo / Junio",
-            cls: "c1",
-          },
-          {
-            key: "integracion_vtex",
-            title: "Integración VTEX",
-            sub: "Q3 / Q4 2026",
-            cls: "c2",
-          },
-          {
-            key: "seller_center",
-            title: "Seller Center",
-            sub: "Q4 2026 / Q1 2027",
-            cls: "c3",
-          },
-        ];
         setHTML("content-area", `
-    <div class="kanban">
-      ${groups
-        .map((g) => {
-          const rows = filtered.filter((s) => s.camino === g.key);
+    <div class="kanban pipeline-kanban">
+      ${PIPELINE.map((g) => {
+          const rows = filtered.filter((s) => norm(s.estado_macro) === norm(g.label));
           return `
           <section class="k-col ${g.cls}">
             <div class="k-head">
-              <div><div class="k-title">${g.title}</div><div class="k-sub">${g.sub}</div></div>
+              <div><div class="k-title">${g.label}</div><div class="k-sub">${g.sub}</div></div>
               <div class="k-cnt">${rows.length}</div>
             </div>
             <div class="k-body">
-              ${
-                rows.length
-                  ? rows.map(cardHTML).join("")
-                  : `<div class="empty" style="padding:32px 16px"><div class="empty-icon">○</div><span>Sin sellers</span></div>`
-              }
+              ${rows.length ? rows.map(cardHTML).join("") : `<div class="empty" style="padding:32px 16px"><div class="empty-icon">○</div><span>Sin sellers</span></div>`}
             </div>
           </section>`;
-        })
-        .join("")}
+        }).join("")}
     </div>`);
       }
 
